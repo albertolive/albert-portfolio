@@ -1,0 +1,220 @@
+/* /about — ped.ro identity. Values from reference/measurements/pedro.md;
+   deviations in reference/decisions.md D5 (inert closed content,
+   aria-live counter, reduced-motion honored globally). */
+
+.page {
+  min-height: 100dvh;
+  position: relative;
+}
+
+.videoWrap {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.contentLayer {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  background: #000;
+  color: #fff;
+  text-align: center;
+  mix-blend-mode: multiply;
+}
+
+/* Film grain — fixed overlay, above content, no pointer events */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  opacity: 0.2;
+  pointer-events: none;
+  filter: contrast(60%) brightness(100%);
+  width: 100%;
+  height: 100%;
+}
+
+.videoBg {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  opacity: 0.75;
+  transition: opacity 666ms ease;
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+/* Counter — fixed top-right, serif italic */
+.counter {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  color: #eee;
+  filter: blur(0.25px);
+  animation: aboutShow 0.6s ease both;
+  animation-delay: calc(0.16s * 5);
+}
+
+@media (hover: none) {
+  .counter {
+    display: none;
+  }
+}
+
+/* Shell — container-4 = 1136px */
+.main {
+  max-width: 1136px;
+  margin: 0 auto;
+  padding: 0 16px;
+  padding-top: 160px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Prose — 28px/36px mobile, 35px/42px desktop, wght 500 */
+.text {
+  font-family: var(--font-tight);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 36px;
+  letter-spacing: -0.01em;
+  filter: blur(0.25px);
+  animation: aboutShow 0.6s ease both;
+}
+
+.mail {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.mail:hover {
+  color: var(--accent-about);
+}
+
+.fade {
+  animation: aboutShow 0.6s ease both;
+  animation-delay: calc(0.16s * var(--delay, 0));
+}
+
+/* Reveal pills — inline, border currentColor, radius 9999px */
+.revealTrigger {
+  display: inline-block;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+  padding: 0 0.4em;
+  line-height: 1;
+  font-family: var(--font-tight);
+  font-weight: 500;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: normal;
+  color: #fff;
+  cursor: help;
+  vertical-align: baseline;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.revealTrigger:hover {
+  background: var(--accent-about);
+  border-color: var(--accent-about);
+  color: #1a0a06;
+}
+
+.revealTrigger.open {
+  background: var(--mauve-open);
+  border-color: var(--mauve-open);
+  color: #1c1417;
+}
+
+.mail:focus-visible {
+  text-decoration-color: var(--accent-about);
+  box-shadow: 0 0 0 1px #000, 0 0 0 3px var(--ring);
+}
+
+.revealTrigger:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 1px #000,
+    0 0 0 3px var(--ring);
+}
+
+/* Reveal content — inline, blurred when closed, no layout shift */
+.revealContent {
+  display: inline;
+}
+
+.revealContent:not(.open) {
+  filter: blur(6px);
+  opacity: 0.8;
+  user-select: none;
+  color: #fff;
+}
+
+.revealContent.open {
+  animation: aboutReveal 0.6s ease both;
+}
+
+@keyframes aboutShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes aboutReveal {
+  from {
+    filter: blur(0.1em);
+  }
+  to {
+    filter: blur(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding: 0 32px;
+    padding-top: 180px;
+  }
+
+  .text {
+    font-size: 35px;
+    line-height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .videoBg {
+    transition: none;
+  }
+
+  .text,
+  .fade,
+  .counter {
+    animation: none;
+    filter: none;
+  }
+
+  .revealContent.open {
+    animation: none;
+  }
+}

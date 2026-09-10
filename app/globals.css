@@ -1,13 +1,29 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fonts (substitutions documented in DESIGN.md / reference/decisions.md) */
+  --font-sans: var(--font-inter), Arial, sans-serif;
+  --font-dock: var(--font-space-grotesk), Arial, sans-serif;
+  --font-tight: var(--font-inter-tight), Arial, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+
+  /* Colors */
+  --accent: #ff5a36;
+  --accent-projects: #ff5a36;
+  --accent-about: #ff5a36;
+  --ink: #111111;
+  --ink-0: #111111;
+  --live-dot: rgb(195, 217, 39);
+  --toryn-link: #27242b;
+  --toryn-border: #000000;
+  --toryn-border-inner: #525252;
+  --toryn-desc: #525252ee;
+  --mauve-open: #fbd3cb;
+  --ring: currentColor;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 html {
@@ -22,19 +38,11 @@ body {
 
 body {
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: #000;
+  background: #fff;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
 }
 
 a {
@@ -42,8 +50,39 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: #111;
+  color: #fff;
+}
+
+/* Project-wide focus ring (the references lack it; DESIGN.md adds it) */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
