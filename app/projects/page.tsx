@@ -5,6 +5,7 @@ import { site } from "@/content/site";
 import SiteNav from "../_components/site-nav";
 import ContributionCalendar from "./_components/contribution-calendar";
 import SkillsPlayground from "./_components/skills-playground";
+import MontsenyScene from "./_components/montseny-scene";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default function ProjectsPage() {
         <ContributionCalendar />
         <section className={styles.projects} aria-labelledby="projects-title">
         <div className={styles.sectionHeading}>
-          <div><p className={styles.kicker}>Built and shipped</p><h2 id="projects-title">Selected projects</h2></div>
+          <div><p className={styles.kicker}>Built and shipped</p><h2 id="projects-title" tabIndex={-1}>Selected projects</h2></div>
         </div>
         <ul className={styles.grid}>
           {projects.map((p) => {
@@ -44,6 +45,7 @@ export default function ProjectsPage() {
                       alt={p.imageAlt}
                       fill
                       sizes="(min-width: 640px) 50vw, 100vw"
+                      draggable={false}
                     />
                   </span>
                   <span className={styles.cardBody}>
@@ -86,6 +88,7 @@ export default function ProjectsPage() {
               </a>
             </div>
           </div>
+          <MontsenyScene />
           <footer className={styles.footer}>
             <span>Albert Olivé · Cardedeu, Catalonia</span>
             <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>

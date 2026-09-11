@@ -35,6 +35,7 @@ export default function SkillsPlayground() {
   const reducedMotionRef = useRef(false);
   const visibleRef = useRef(true);
   const [active, setActive] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [announcement, setAnnouncement] = useState("Skills are resting.");
 
   function setRunning(next: boolean) {
@@ -186,9 +187,13 @@ export default function SkillsPlayground() {
     reset();
     render();
     board.dataset.ready = "true";
-    const initialFrame = requestAnimationFrame(() => setActive(activeRef.current));
+    const initialFrame = requestAnimationFrame(() => {
+      setActive(activeRef.current);
+      setReducedMotion(motionPreference.matches);
+    });
     const changeMotionPreference = () => {
       reducedMotionRef.current = motionPreference.matches;
+      setReducedMotion(motionPreference.matches);
       if (motionPreference.matches) setRunning(false);
     };
     motionPreference.addEventListener("change", changeMotionPreference);
@@ -213,7 +218,7 @@ export default function SkillsPlayground() {
   }
 
   function startDrag(index: number, event: ReactPointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0 || !engineRef.current || dragRef.current) return;
+    if (event.button !== 0 || !engineRef.current || dragRef.current || reducedMotionRef.current) return;
     const point = pointerPosition(event);
     const body = bodiesRef.current[index];
     if (!point || !body) return;
@@ -265,6 +270,12 @@ export default function SkillsPlayground() {
   }
 
   function nudge(index: number, event: KeyboardEvent<HTMLButtonElement>) {
+    if (reducedMotionRef.current) return;
+    if (event.key === "Escape" || event.key === " " || event.key === "Enter") {
+      event.preventDefault();
+      if (!event.repeat) setRunning(event.key === "Escape" ? false : !activeRef.current);
+      return;
+    }
     const directions: Record<string, Matter.Vector> = {
       ArrowLeft: { x: -1, y: 0 }, ArrowRight: { x: 1, y: 0 },
       ArrowUp: { x: 0, y: -1 }, ArrowDown: { x: 0, y: 1 },
@@ -290,20 +301,18 @@ export default function SkillsPlayground() {
           <p className={styles.pileHint}>A few tools I reach for. <span aria-hidden="true">↓</span></p>
           <h2 id="skills-title" className={styles.srOnly}>Skills with momentum</h2>
         </div>
-        <div className={styles.pileControls}>
-          <button className={styles.resetButton} type="button" onClick={() => { setRunning(!active); if (!active && reducedMotionRef.current) reset(); }}>{active ? "Pause" : "Play"}</button>
-          <button className={styles.resetButton} type="button" onClick={() => { if (!reducedMotionRef.current) setRunning(true); reset(); }}>Reset</button>
-        </div>
       </div>
       <p className={styles.srOnly} id="skills-instructions">
         Grab and throw a skill into the pile. The arrows nudge a focused skill; Shift adds more force.
+        Space or Enter pauses or resumes the pile. Escape pauses it.
       </p>
       <ul className={styles.pileBoard} data-active={active} ref={boardRef} aria-label="Technology skills">
         {SKILLS.map((skill, index) => (
           <li className={styles.skillItem} key={skill}>
           <button
-            aria-describedby="skills-instructions"
-            aria-label={`${skill}, draggable skill`}
+            aria-describedby={reducedMotion ? undefined : "skills-instructions"}
+            aria-label={reducedMotion ? skill : `${skill}, draggable skill`}
+            disabled={reducedMotion}
             className={`${styles.skillPill} ${styles[COLORS[index % COLORS.length]]}`}
             onKeyDown={(event) => nudge(index, event)}
             onLostPointerCapture={finishDrag}

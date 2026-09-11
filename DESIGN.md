@@ -82,10 +82,11 @@ Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
   340px minimum on desktop, 400px on mobile, and 520px below 361px to fit
   the pile. Pills have 44px minimum touch targets. Pointer throws transfer
   momentum; keyboard arrows add velocity, with Shift for a stronger nudge.
-  Pause and randomized reset remain native buttons. The pile pauses offscreen
-  without teleporting. Resizing an active board restarts the rain to prevent
-  overlapping bodies. Reduced motion renders a naturally sized, readable
-  list and exposes Play explicitly.
+  No visible playback or reset buttons. With a skill focused, Space or Enter
+  toggles playback and Escape pauses. The pile also pauses offscreen without
+  teleporting. Resizing an active board restarts the rain to prevent overlapping
+  bodies. Reduced motion keeps a naturally sized, readable static list and
+  disables physics interactions.
 - Motion: a staggered heading/lede entrance, short image zoom and arrow
   movement on fine-pointer hover, and progressive CSS scroll reveals where
   view timelines are supported. All have reduced-motion alternatives.
@@ -112,7 +113,8 @@ Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
   server running via `npm run start -- --port 3100`, run
   `npm run check:projects:browser`. Pass a different URL after `--` if needed.
   The browser check requires live GitHub data and exercises desktop/mobile
-  resizing, entry/reset, pause, keyboard/pointer input, scrolling, section
+  resizing, randomized reloads, absence of toolbar controls, keyboard pause/resume,
+  keyboard/pointer input, scrolling, section
   order, public/private project links, and reduced motion.
 
 ## Page: `/about` (pedro identity)
