@@ -74,22 +74,46 @@ Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
 
 ## Page: `/projects` (toryn identity)
 
-- Water backdrop uses `--water-base` (`#edfafa`), `--water-ripple`
-  (`rgba(57, 151, 158, 0.38)`) and `--water-sand` (`#d9c8a4`). The
-  sand token extends the palette for the requested coastal seabed.
-  Native WebGL refracts a photographed sand texture beneath moving
-  sunlight, shallow coastal waves, and pointer ripples behind the cards.
-  Reduced motion freezes the water. Unavailable WebGL uses a static gradient.
+- Page order: opening hero with the playable skills pile, GitHub contribution
+  calendar, six image-first project cards, then a dark “Let’s work together”
+  section linking to LinkedIn. GitHub, LinkedIn, and Back to top finish the page.
+- Skills playground: 24 confirmed technology labels rain from randomized
+  positions into a full-width Matter.js pile. The board uses 40svh with a
+  340px minimum on desktop, 400px on mobile, and 520px below 361px to fit
+  the pile. Pills have 44px minimum touch targets. Pointer throws transfer
+  momentum; keyboard arrows add velocity, with Shift for a stronger nudge.
+  Pause and randomized reset remain native buttons. The pile pauses offscreen
+  without teleporting. Resizing an active board restarts the rain to prevent
+  overlapping bodies. Reduced motion renders a naturally sized, readable
+  list and exposes Play explicitly.
+- Motion: a staggered heading/lede entrance, short image zoom and arrow
+  movement on fine-pointer hover, and progressive CSS scroll reveals where
+  view timelines are supported. All have reduced-motion alternatives.
+- No visitor count: the site has no configured shared counter or analytics
+  store. A local or invented number would not represent actual visitors.
+- GitHub contributions: server-fetched native GitHub contribution HTML with
+  one-hour revalidation, a seven-second timeout, strict date/level/count
+  parsing, Sunday–Saturday grouping from dates, and an honest unavailable
+  state. No event-derived or fabricated contribution data.
+- Project details remain separate from the drag surfaces. The private
+  opportunity-radar entry is labelled and is not rendered as a link.
 
-- Shell: `max-width: 1840px` (max-w-460), `padding-top: 112px`,
-  `padding-x: 32px`.
+- Shell: coordinated `max-width: 1120px`, `padding-top: 112px`; the physics
+  zone alone spans the viewport width.
 - Navbar: shared toryn `SiteNav` (dark tone, `withBlur` blur strip).
-- Grid: `grid-cols-1 sm:2 lg:3 2xl:4`, gap 24px.
-- Card: outer `border-2 #000` + inner `border-2 neutral-600`, aspect-video
-  image, title lowercase 16px, desc `#525252ee` 16px/24, arrow translate
-  0.5 200ms hover. Hover: `scale(1.05)` in `perspective(800px)`, border →
-  `--accent`, z-lift. No shadow.
+- Detail grid: one column mobile, two columns from 640px, gap 16px.
+- Card: one subtle `rgba(17,17,17,.08)` border, 12px radius, no shadow or
+  scale. The existing 16:9 project image is edge-to-edge; content is 16px
+  mobile / 20px desktop, title 16px/500, description 14px/1.75, with text
+  technology labels and an explicit website/code action where public.
 - Focus-visible: 2px solid `--accent`, offset 2px (our addition).
+- Verification: `npm run check:projects` checks contribution parsing and
+  Matter.js collision transfer. With `agent-browser` installed and a production
+  server running via `npm run start -- --port 3100`, run
+  `npm run check:projects:browser`. Pass a different URL after `--` if needed.
+  The browser check requires live GitHub data and exercises desktop/mobile
+  resizing, entry/reset, pause, keyboard/pointer input, scrolling, section
+  order, public/private project links, and reduced motion.
 
 ## Page: `/about` (pedro identity)
 
@@ -117,10 +141,9 @@ Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
 | panel/modal open | 150–300ms ease-out | home |
 | reveal unblur / show fade | 600ms | about |
 | video opacity fade | 666ms | home/about |
-| card scale | snap (none) | projects |
 
-`prefers-reduced-motion: reduce` → disable scale, arrow, blur animations,
-video fades; keep color transitions.
+`prefers-reduced-motion: reduce` → replace the falling skills simulation with
+a static wrapped list; disable blur animations and video fades.
 
 ## Accessibility rules (project-wide)
 

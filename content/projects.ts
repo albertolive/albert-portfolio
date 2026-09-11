@@ -3,6 +3,7 @@ export type Project = {
   title: string;
   description: string;
   year: string;
+  tech: string[];
   href: string;
   image: string;
   imageAlt: string;
@@ -17,6 +18,7 @@ export const projects: Project[] = [
     title: "nowcast-cardedeu",
     description: "XGBoost rain nowcasting — 200+ features from radar, lightning and AEMET data, trained on my hometown's weather.",
     year: "2024",
+    tech: ["Python", "XGBoost"],
     href: "https://github.com/albertolive/nowcast-cardedeu",
     image: "/images/projects/nowcast-cardedeu.png",
     imageAlt: "nowcast-cardedeu rain nowcasting project",
@@ -26,6 +28,7 @@ export const projects: Project[] = [
     title: "esdeveniments.cat",
     description: "Catalunya's events platform — 10K monthly users, 194K yearly views. TypeScript frontend, Java backend, AI metadata scraper.",
     year: "2023",
+    tech: ["TypeScript", "Java"],
     href: "https://esdeveniments.cat",
     image: "/images/projects/esdeveniments.png",
     imageAlt: "esdeveniments.cat events platform",
@@ -35,6 +38,7 @@ export const projects: Project[] = [
     title: "moveflow.app",
     description: "macOS menubar app that nudges you off your chair — sedentary-behavior tracking built in Swift.",
     year: "2024",
+    tech: ["Swift", "macOS"],
     href: "https://moveflow.app",
     image: "/images/projects/moveflow.png",
     imageAlt: "moveflow.app macOS menubar app",
@@ -44,6 +48,7 @@ export const projects: Project[] = [
     title: "culturacardedeu.com",
     description: "Civic culture site for Cardedeu — what's on in town, built and maintained as a side project.",
     year: "2023",
+    tech: [],
     href: "https://culturacardedeu.com",
     image: "/images/projects/culturacardedeu.png",
     imageAlt: "culturacardedeu.com civic culture site",
@@ -53,6 +58,7 @@ export const projects: Project[] = [
     title: "opportunity-radar",
     description: "Weekly private radar that turns Google Trends, Autocomplete and Keyword Planner into GitHub issues.",
     year: "2025",
+    tech: [],
     href: "#",
     image: "/images/projects/opportunity-radar.png",
     imageAlt: "opportunity-radar trend scanning project",
@@ -62,6 +68,7 @@ export const projects: Project[] = [
     title: "MetaMask Extension",
     description: "The web3 wallet in the browser — 13k+ stars, contributions while at Consensys.",
     year: "2022",
+    tech: [],
     href: "https://github.com/MetaMask/metamask-extension",
     image: "/images/projects/metamask-extension.png",
     imageAlt: "MetaMask Extension web3 wallet",

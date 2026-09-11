@@ -9,9 +9,8 @@ export const site = {
     "Portfolio of Albert Olivé Corbella — engineering leader and full-stack builder. TWIN @ IOTA Foundation, founder @ esdeveniments.cat, ex-MetaMask, ex-letgo.",
   // L1: replace with the approved public email before deploy
   email: "PLACEHOLDER-EMAIL",
-  // L2/L3: replace with approved public profile URLs before deploy
-  linkedin: "https://www.linkedin.com/in/PLACEHOLDER",
-  github: "https://github.com/PLACEHOLDER",
+  linkedin: "https://www.linkedin.com/in/albertolivecorbella/",
+  github: "https://github.com/albertolive",
 } as const;
 
 export type Site = typeof site;
