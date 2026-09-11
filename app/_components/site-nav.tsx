@@ -67,15 +67,17 @@ export default function SiteNav({
   active,
   tone = "dark",
   withBlur = false,
+  inline = false,
 }: {
   active: NavRoute;
   tone?: "dark" | "light";
   withBlur?: boolean;
+  inline?: boolean;
 }) {
   return (
     <>
       <nav
-        className={`${styles.nav} ${tone === "light" ? styles.light : ""}`}
+        className={`${styles.nav} ${tone === "light" ? styles.light : ""} ${inline ? styles.inline : ""}`}
         aria-label="Primary navigation"
       >
         {/* Veil must live INSIDE the nav stacking context (like toryn's

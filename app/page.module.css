@@ -13,8 +13,7 @@
   position: relative;
   flex: 1;
   container-type: size;
-  margin: 20px;
-  margin-bottom: 0;
+  margin: 0 32px;
   border-radius: 8px;
   overflow: hidden;
   background: #000;
@@ -31,6 +30,9 @@
 .video {
   border: 0;
 }
+
+/* Top scrim removed (2026-09-08): the nav now lives above the video in
+   normal flow, so no darkening band is needed. */
 
 .frame {
   inset: auto;
@@ -77,12 +79,12 @@
   letter-spacing: 0.02em;
 }
 
-/* Bottom bar — jrands #bottom-bar */
+/* Bottom bar — jrands #bottom-bar: name+role left, location+time+year right */
 .bottomBar {
-  display: grid;
-  grid-auto-flow: column;
+  display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   height: 64px;
   padding: 0 32px;
   font-family: var(--font-dock);
@@ -90,6 +92,17 @@
   font-size: 14px;
   letter-spacing: 0.84px;
   color: rgba(0, 0, 0, 0.65);
+}
+
+.barGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.barRight {
+  text-align: right;
 }
 
 .barItem {
@@ -104,8 +117,7 @@
   }
 
   .frameWrap {
-    margin: 12px;
-    margin-bottom: 0;
+    margin: 0 20px;
   }
 
   .badge {
@@ -124,13 +136,20 @@
 
   .bottomBar {
     display: grid;
-    grid-auto-flow: row;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
     height: auto;
-    gap: 8px;
+    gap: 6px 16px;
     padding: 16px 20px;
     font-size: 10px;
     letter-spacing: 0.6px;
   }
 
+  .barGroup {
+    display: contents;
+  }
+
+  .barRight {
+    text-align: right;
+  }
 }

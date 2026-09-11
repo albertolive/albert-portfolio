@@ -12,6 +12,8 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
+      <SiteNav active="home" inline />
+
       <div className={styles.frameWrap}>
         <div className={styles.frame}>
           <iframe
@@ -27,22 +29,24 @@ export default function HomePage() {
         <Link
           href="/about"
           className={styles.badge}
-          aria-label={`About ${site.name} — ${site.shortTitle}`}
+          aria-label={`About ${site.name} — ${site.status}`}
         >
           <span className={styles.badgeDot} aria-hidden="true" />
-          <span className={styles.badgeText}>{site.shortTitle}</span>
+          <span className={styles.badgeText}>{site.status}</span>
         </Link>
       </div>
 
       <div className={styles.bottomBar}>
-        <span className={styles.barItem}>{site.location}</span>
-        <span className={`${styles.barItem} ${styles.barState}`}>
+        <div className={styles.barGroup}>
+          <span className={styles.barItem}>{site.name.split(" ").slice(0, 2).join(" ")}</span>
+          <span className={styles.barItem}>{site.role}</span>
+        </div>
+        <div className={`${styles.barGroup} ${styles.barRight}`}>
+          <span className={styles.barItem}>{site.location}</span>
           <Clock />
-        </span>
-        <span className={styles.barItem}>{year}</span>
+          <span className={styles.barItem}>{year}</span>
+        </div>
       </div>
-
-      <SiteNav active="home" tone="light" />
     </div>
   );
 }

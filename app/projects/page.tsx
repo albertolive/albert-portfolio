@@ -90,7 +90,7 @@ export default function ProjectsPage() {
           </div>
           <MontsenyScene />
           <footer className={styles.footer}>
-            <span>Albert Olivé · Cardedeu, Catalonia</span>
+            <span>Albert Olivé · {site.location}</span>
             <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
             <a href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
             <a href="#top">Back to top ↑</a>

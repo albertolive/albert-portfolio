@@ -29,6 +29,28 @@
   font-size: 20px;
 }
 
+/* In-flow variant (home): nav sits above the video frame in the page's
+   flex column, so it reads dark-on-white with no scrim or contrast hacks.
+   Box matches .bottomBar (64px, 32px side padding) for a symmetric frame. */
+.inline {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.inline .navInner {
+  max-width: none;
+  min-height: 64px;
+  padding: 0 32px;
+}
+
+@media (max-width: 640px) {
+  .inline .navInner {
+    min-height: 56px;
+    padding: 0 20px;
+  }
+}
+
 .navInner {
   display: flex;
   align-items: center;
@@ -90,7 +112,7 @@
 }
 
 .link[aria-current="page"] {
-  /* toryn marks active with data-active; no visual difference — we keep it same */
+  color: var(--accent);
 }
 
 .link:focus-visible {
@@ -104,15 +126,19 @@
   flex-shrink: 0;
 }
 
-/* Dark pages (home, about): white text, readable over video/ink */
+/* Dark pages (home, about): white text over video/ink. Legibility comes
+   from the page's own scrim, not from shadows on the type. */
 .light .link,
 .light .brand a {
   color: #fff;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.65);
 }
 
 .light .link:hover,
 .light .link:focus-visible {
+  color: var(--accent);
+}
+
+.light .link[aria-current="page"] {
   color: var(--accent);
 }
 

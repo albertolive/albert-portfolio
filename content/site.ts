@@ -3,7 +3,9 @@ export const site = {
   // C1: title variant pending Albert's pick (see CONTENT-NEEDED.md)
   title: "Engineering leader · Staff/Senior AI Engineer · Forward Deployed Engineer",
   shortTitle: "Engineering leader & full-stack builder",
-  location: "Cardedeu, Catalonia",
+  role: "Full Stack · AI Engineer · Leader",
+  status: "Open to work",
+  location: "Barcelona, Spain",
   timezone: "Europe/Madrid",
   description:
     "Portfolio of Albert Olivé Corbella — engineering leader and full-stack builder. TWIN @ IOTA Foundation, founder @ esdeveniments.cat, ex-MetaMask, ex-letgo.",
