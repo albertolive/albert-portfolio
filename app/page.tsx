@@ -27,7 +27,7 @@ export default function HomePage() {
         </div>
 
         <Link
-          href="/about"
+          href="/projects"
           className={styles.badge}
           aria-label={`About ${site.name} — ${site.status}`}
         >

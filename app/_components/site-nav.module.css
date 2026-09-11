@@ -39,7 +39,6 @@
 }
 
 .inline .navInner {
-  max-width: none;
   min-height: 64px;
   padding: 0 32px;
 }
@@ -56,7 +55,6 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 1840px;
   margin: 0 auto;
   padding: 24px 16px;
 }
