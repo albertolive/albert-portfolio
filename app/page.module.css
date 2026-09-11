@@ -135,9 +135,9 @@
   }
 
   .bottomBar {
-    display: grid;
-    grid-template-columns: auto auto;
+    display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     height: auto;
     gap: 6px 16px;
     padding: 16px 20px;
@@ -146,10 +146,23 @@
   }
 
   .barGroup {
-    display: contents;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
   }
 
   .barRight {
+    align-items: flex-end;
+    flex-shrink: 0;
     text-align: right;
+  }
+
+  .barItem {
+    white-space: normal;
+  }
+
+  .barRight .barItem {
+    white-space: nowrap;
   }
 }
