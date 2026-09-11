@@ -105,6 +105,12 @@
   text-align: right;
 }
 
+/* Time+year pair: transparent on desktop (children stay flex items with
+   the row gap); one nowrap line on mobile. */
+.barTime {
+  display: contents;
+}
+
 .barItem {
   white-space: nowrap;
 }
@@ -164,5 +170,14 @@
 
   .barRight .barItem {
     white-space: nowrap;
+  }
+
+  .barTime {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .barTime .barItem {
+    margin-left: 8px;
   }
 }

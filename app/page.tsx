@@ -43,8 +43,9 @@ export default function HomePage() {
         </div>
         <div className={`${styles.barGroup} ${styles.barRight}`}>
           <span className={styles.barItem}>{site.location}</span>
-          <Clock />
-          <span className={styles.barItem}>{year}</span>
+          <span className={styles.barTime}>
+            <Clock /><span className={styles.barItem}>{year}</span>
+          </span>
         </div>
       </div>
     </div>
