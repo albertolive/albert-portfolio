@@ -23,7 +23,7 @@ export const projects: Project[] = [
   {
     slug: "esdeveniments",
     title: "esdeveniments.cat",
-    description: "Catalonia events platform with a TypeScript frontend, Java backend, and automated metadata collection.",
+    description: "Catalonia’s events platform, serving 10K+ monthly users with 194K views in the last 12 months. Automated collection keeps listings fresh.",
     year: "2023",
     tech: ["TypeScript", "Java"],
     href: "https://esdeveniments.cat",
@@ -54,7 +54,7 @@ export const projects: Project[] = [
   {
     slug: "eltempsavui",
     title: "eltempsavui.cat",
-    description: "Local weather forecasts for Catalonia, built with Next.js and TypeScript.",
+    description: "An autonomous agentic system that researches, writes and publishes a daily Catalan weather briefing to the web, email, Telegram and WhatsApp. Its validation loop checks every issue and draws on twelve years of forecasts.",
     year: "2026",
     tech: ["TypeScript", "Next.js"],
     href: "https://eltempsavui.cat",
@@ -79,7 +79,7 @@ export const projects: Project[] = [
   {
     slug: "culturacardedeu",
     title: "culturacardedeu.com",
-    description: "Independent guide to cultural events and activities in Cardedeu.",
+    description: "My hand-curated guide to culture in Cardedeu.",
     year: "2023",
     tech: [],
     href: "https://culturacardedeu.com",
@@ -104,7 +104,7 @@ export const projects: Project[] = [
   {
     slug: "nowcast-cardedeu",
     title: "nowcast-cardedeu",
-    description: "XGBoost rain nowcasting using radar, lightning, and AEMET weather data.",
+    description: "Predicts rain in Cardedeu ninety minutes ahead using XGBoost and live weather data.",
     year: "2024",
     tech: ["Python", "XGBoost"],
     href: "https://github.com/albertolive/nowcast-cardedeu",
@@ -115,7 +115,7 @@ export const projects: Project[] = [
   {
     slug: "moveflow",
     title: "MoveFlow",
-    description: "macOS menu bar app for movement reminders and sedentary-behavior tracking.",
+    description: "A macOS menu bar app that reminds me to move.",
     year: "2024",
     tech: ["Swift", "macOS"],
     href: "https://moveflow-site.vercel.app",
@@ -126,7 +126,7 @@ export const projects: Project[] = [
   {
     slug: "breathing-timer",
     title: "Breathing Timer",
-    description: "Guided breathing timer for Garmin watches.",
+    description: "A breathing timer for Garmin watches.",
     year: "2026",
     tech: ["Monkey C", "Garmin"],
     href: "https://apps.garmin.com/apps/59828c15-7638-4e14-b871-47f0ce0c66f0",

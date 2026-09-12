@@ -6,10 +6,10 @@ export const site = {
   shortTitle: "Senior AI Product Engineer",
   role: "Senior AI Product Engineer",
   status: "Open to work",
-  location: "Barcelona, Spain",
+  location: "Cardedeu (Barcelona), Catalonia",
   timezone: "Europe/Madrid",
   description:
-    "Portfolio of Albert Olivé Corbella — senior AI product engineer building AI-native products end to end. Founder @ esdeveniments.cat. Ex-MetaMask (Consensys), ex-IOTA Foundation, ex-letgo.",
+    "Portfolio of Albert Olivé Corbella, senior AI product engineer building AI-native products end to end. Founder @ esdeveniments.cat. Ex-MetaMask (Consensys), ex-IOTA Foundation, ex-letgo.",
   // L1 resolved (2026-09-11): public email from the CV.
   email: "albertolivecorbella@gmail.com",
   linkedin: "https://www.linkedin.com/in/albertolivecorbella/",
