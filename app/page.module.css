@@ -89,7 +89,7 @@
   padding: 0 32px;
   font-family: var(--font-dock);
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--type-body);
   letter-spacing: 0.84px;
   color: rgba(0, 0, 0, 0.65);
 }
@@ -147,7 +147,7 @@
     height: auto;
     gap: 6px 16px;
     padding: 16px 20px;
-    font-size: 10px;
+    font-size: var(--type-micro);
     letter-spacing: 0.6px;
   }
 

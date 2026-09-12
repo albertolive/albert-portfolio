@@ -5,6 +5,27 @@
   --font-tight: var(--font-inter-tight), Arial, sans-serif;
   --font-serif: var(--font-newsreader), Georgia, serif;
 
+  /* Type scale */
+  --type-label: 11px;
+  --type-micro: 10px;
+  --type-small: 13px;
+  --type-body: 14px;
+  --type-lede: 17px;
+  --type-section-title: clamp(30px, 4vw, 48px);
+  --type-display-title: clamp(40px, 6vw, 72px);
+  --type-nav: 20px;
+  --leading-label: 1.2;
+  --leading-micro: 1;
+  --leading-small: 1.35;
+  --leading-body: 1.55;
+  --leading-lede: 1.5;
+  --leading-section-title: 1;
+  --leading-display-title: 0.96;
+  --tracking-label: 0.14em;
+  --tracking-micro: 0.06em;
+  --tracking-section-title: -0.045em;
+  --tracking-display-title: -0.05em;
+
   /* Colors */
   --accent: #ff5a36;
   --accent-projects: #ff5a36;
@@ -57,6 +78,12 @@ button {
   border: none;
   padding: 0;
   cursor: pointer;
+}
+
+.arrowIcon {
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: -0.2em;
 }
 
 img,

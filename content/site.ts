@@ -1,16 +1,17 @@
 export const site = {
+  url: "https://albert-portfolio-six.vercel.app",
   name: "Albert Olivé Corbella",
-  // C1: title variant pending Albert's pick (see CONTENT-NEEDED.md)
-  title: "Engineering leader · Staff/Senior AI Engineer · Forward Deployed Engineer",
-  shortTitle: "Engineering leader & full-stack builder",
-  role: "Full Stack · AI Engineer · Leader",
+  // C1 resolved (2026-09-11): CV headline, ex-IOTA framing.
+  title: "Senior AI Product Engineer · Building AI-native products from idea to production",
+  shortTitle: "Senior AI Product Engineer",
+  role: "Senior AI Product Engineer",
   status: "Open to work",
   location: "Barcelona, Spain",
   timezone: "Europe/Madrid",
   description:
-    "Portfolio of Albert Olivé Corbella — engineering leader and full-stack builder. TWIN @ IOTA Foundation, founder @ esdeveniments.cat, ex-MetaMask, ex-letgo.",
-  // L1: replace with the approved public email before deploy
-  email: "PLACEHOLDER-EMAIL",
+    "Portfolio of Albert Olivé Corbella — senior AI product engineer building AI-native products end to end. Founder @ esdeveniments.cat. Ex-MetaMask (Consensys), ex-IOTA Foundation, ex-letgo.",
+  // L1 resolved (2026-09-11): public email from the CV.
+  email: "albertolivecorbella@gmail.com",
   linkedin: "https://www.linkedin.com/in/albertolivecorbella/",
   github: "https://github.com/albertolive",
 } as const;

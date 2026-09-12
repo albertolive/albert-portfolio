@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { planeFlight } from "./plane-flight";
-import styles from "../page.module.css";
+import styles from "./montseny-scene.module.css";
 
 type Point = { x: number; y: number };
 type Drag = Point & { pointerId: number; origin: Point; startedAt: number; samples: Array<Point & { time: number }> };

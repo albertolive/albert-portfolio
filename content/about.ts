@@ -12,14 +12,15 @@ function countReveals(segments: AboutSegment[]): number {
   );
 }
 
-// C5/C6: about prose and hidden texts are drafts; review before deploy.
-// Read with all pills closed the prose must still parse as full sentences;
-// each reveal's text continues right after its label with no repetition.
+// C5/C6 (2026-09-11): aligned with the Sep 2026 CV — ex-IOTA framing,
+// El Temps Avui as the current build, twelve years. Read with all pills
+// closed the prose must still parse as full sentences; each reveal's text
+// continues right after its label with no repetition.
 export const about: { segments: AboutSegment[] } = {
   segments: [
     {
       kind: "text",
-      text: "I'm Albert Olivé Corbella, an engineering leader and full-stack builder from ",
+      text: "I'm Albert Olivé Corbella, an AI product engineer and engineering leader from ",
     },
     {
       kind: "reveal",
@@ -57,16 +58,16 @@ export const about: { segments: AboutSegment[] } = {
     },
     {
       kind: "text",
-      text: ". I've shipped software for over ten years. These days I lead ",
+      text: ". I've spent twelve years building products from idea to production — at startups, a unicorn and larger organisations — and I've led engineering teams along the way. For the last stretch I led ",
     },
     {
       kind: "reveal",
-      id: "twin",
+      id: "iota",
       label: "TWIN",
       children: [
         {
           kind: "text",
-          text: ", the IOTA Foundation team building identity and data spaces. I work on ",
+          text: ", the identity and data-spaces team at the IOTA Foundation, working on ",
         },
         {
           kind: "reveal",
@@ -82,6 +83,21 @@ export const about: { segments: AboutSegment[] } = {
         {
           kind: "text",
           text: ", interoperability between ecosystems, and the AI tooling around them",
+        },
+      ],
+    },
+    {
+      kind: "text",
+      text: ". These days I build AI-native products on my own — most recently ",
+    },
+    {
+      kind: "reveal",
+      id: "el-temps-avui",
+      label: "El Temps Avui",
+      children: [
+        {
+          kind: "text",
+          text: ", an autonomous system that researches, writes and publishes a daily weather briefing in Catalan across the web, email, Telegram and WhatsApp. It retrieves knowledge from twelve years of expert forecasts, validates every edition before publishing, and runs with no human in the daily loop",
         },
       ],
     },

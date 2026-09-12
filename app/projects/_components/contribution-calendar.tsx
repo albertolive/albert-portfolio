@@ -1,4 +1,5 @@
 import { site } from "@/content/site";
+import { ArrowUpRightIcon } from "@/app/_components/icons";
 import styles from "../page.module.css";
 import { parseGitHubContributions, type ContributionDay } from "./github-contributions";
 
@@ -70,7 +71,7 @@ export default async function ContributionCalendar() {
           <p className={styles.kicker}>Open source, over time</p>
           <h2 id="contributions-title">GitHub contributions</h2>
         </div>
-        <a href={site.github} target="_blank" rel="noopener noreferrer">@albertolive <span aria-hidden="true">↗</span></a>
+        <a href={site.github} target="_blank" rel="noopener noreferrer">@albertolive <ArrowUpRightIcon /></a>
       </div>
       {calendar && first && last ? (
         <div className={styles.calendarCard}>
@@ -98,7 +99,7 @@ export default async function ContributionCalendar() {
           </div>
         </div>
       ) : (
-        <p className={styles.calendarUnavailable}>GitHub contributions are temporarily unavailable. <a href={site.github} target="_blank" rel="noopener noreferrer">View the profile instead ↗</a></p>
+        <p className={styles.calendarUnavailable}>GitHub contributions are temporarily unavailable. <a href={site.github} target="_blank" rel="noopener noreferrer">View the profile instead <ArrowUpRightIcon /></a></p>
       )}
     </section>
   );

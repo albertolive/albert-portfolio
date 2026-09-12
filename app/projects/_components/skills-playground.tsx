@@ -3,6 +3,7 @@
 import Matter from "matter-js";
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
+import { ArrowDownIcon } from "@/app/_components/icons";
 import styles from "../page.module.css";
 
 const SKILLS = [
@@ -298,7 +299,7 @@ export default function SkillsPlayground() {
     <section className={styles.pileSection} aria-labelledby="skills-title">
       <div className={styles.pileHeading}>
         <div>
-          <p className={styles.pileHint}>A few tools I reach for. <span aria-hidden="true">↓</span></p>
+          <p className={styles.pileHint}>A few tools I reach for. <ArrowDownIcon /></p>
           <h2 id="skills-title" className={styles.srOnly}>Skills with momentum</h2>
         </div>
       </div>

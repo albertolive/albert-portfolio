@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { projects } from "@/content/projects";
 import { site } from "@/content/site";
 import SiteNav from "../_components/site-nav";
+import { ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon } from "../_components/icons";
+import MontsenyScene from "../_components/montseny-scene";
 import ContributionCalendar from "./_components/contribution-calendar";
+import ProjectPreview from "./_components/project-preview";
 import SkillsPlayground from "./_components/skills-playground";
-import MontsenyScene from "./_components/montseny-scene";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export default function ProjectsPage() {
             <p className={styles.kicker}>selected work · catalonia</p>
             <h1>Things I build close to the ground.</h1>
             <p className={styles.lede}>Weather models, local platforms, and tools that make everyday life a little more useful.</p>
-            <a className={styles.exploreLink} href="#projects-title">Explore the projects <span aria-hidden="true">↓</span></a>
+            <a className={styles.exploreLink} href="#projects-title">Explore the projects <ArrowDownIcon /></a>
           </header>
           <SkillsPlayground />
         </section>
@@ -35,19 +36,10 @@ export default function ProjectsPage() {
           <div><p className={styles.kicker}>Built and shipped</p><h2 id="projects-title" tabIndex={-1}>Selected projects</h2></div>
         </div>
         <ul className={styles.grid}>
-          {projects.map((p) => {
-            const content = (
-                <>
-                  <span className={styles.imageWrap}>
-                    <Image
-                      className={styles.image}
-                      src={p.image}
-                      alt={p.imageAlt}
-                      fill
-                      sizes="(min-width: 640px) 50vw, 100vw"
-                      draggable={false}
-                    />
-                  </span>
+          {projects.map((p) => (
+              <li key={p.slug} className={styles.card}>
+                <a className={styles.cardLink} href={p.href} target="_blank" rel="noreferrer">
+                  <ProjectPreview image={p.image} imageAlt={p.imageAlt} video={p.video} />
                   <span className={styles.cardBody}>
                     <span className={styles.cardTitle}>{p.title}</span>
                     <span className={styles.cardDesc}>{p.description}</span>
@@ -56,24 +48,16 @@ export default function ProjectsPage() {
                       {p.tech.map((tech) => (
                         <span key={tech} className={styles.cardTag}>{tech}</span>
                       ))}
-                      {p.href === "#" && <span className={styles.privateLabel}>Private project</span>}
                     </span>
-                    {p.href !== "#" && <span className={styles.cardAction}>{p.href.includes("github.com") ? "View code" : "Visit website"} <span aria-hidden="true">↗</span></span>}
+                    <span className={styles.cardAction}>{p.href.includes("github.com") ? "View code" : "Visit website"} <ArrowUpRightIcon /></span>
                   </span>
-                </>
-            );
-
-            return (
-              <li key={p.slug} className={styles.card}>
-                {p.href === "#" ? (
-                  <div className={`${styles.cardLink} ${styles.privateCard}`}>{content}</div>
-                ) : (
-                  <a className={styles.cardLink} href={p.href} target="_blank" rel="noreferrer">{content}</a>
-                )}
+                </a>
               </li>
-            );
-          })}
+          ))}
         </ul>
+        <a className={styles.moreProjectsLink} href={site.github} target="_blank" rel="noopener noreferrer">
+          See more on GitHub <ArrowUpRightIcon />
+        </a>
         </section>
         </div>
 
@@ -84,16 +68,16 @@ export default function ProjectsPage() {
             <div className={styles.contactBottom}>
               <p>From a first prototype to a product people use. Let’s talk about what you’re building.</p>
               <a className={styles.contactLink} href={site.linkedin} target="_blank" rel="noopener noreferrer">
-                Start a conversation <span aria-hidden="true">↗</span>
+                Start a conversation <ArrowUpRightIcon />
               </a>
             </div>
           </div>
           <MontsenyScene />
           <footer className={styles.footer}>
             <span>Albert Olivé · {site.location}</span>
-            <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-            <a href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
-            <a href="#top">Back to top ↑</a>
+            <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub <ArrowUpRightIcon /></a>
+            <a href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <ArrowUpRightIcon /></a>
+            <a href="#top">Back to top <ArrowUpIcon /></a>
           </footer>
         </section>
       </main>

@@ -19,7 +19,7 @@ export default function AboutPage() {
       <div className={styles.videoWrap} aria-hidden="true">
         <video
           className={styles.videoBg}
-          src="https://cdn.ped.ro/video-optimised.mp4"
+          src="/video/about.mp4"
           autoPlay
           muted
           loop

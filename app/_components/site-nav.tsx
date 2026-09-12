@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import ReactiveAvatar from "./reactive-avatar";
 import styles from "./site-nav.module.css";
 
-export type NavRoute = "home" | "projects" | "about";
+export type NavRoute = "home" | "projects" | "about" | "experience";
 
 export const navRoutes: { id: NavRoute; href: string; label: string }[] = [
   { id: "home", href: "/", label: "home" },
+  { id: "experience", href: "/experience", label: "experience" },
   { id: "projects", href: "/projects", label: "projects" },
   { id: "about", href: "/about", label: "about" },
 ];
@@ -59,6 +61,14 @@ const icons: Record<NavRoute, ReactNode> = {
       <path d="M7.2 14.8 C 8.7 17, 12.5 17.1, 14 15.1" />
     </svg>
   ),
+  experience: (
+    <svg {...iconProps}>
+      <path d="M5.2 8.2 L18.8 8.2 L18.1 19.2 L5.9 19.2 Z" fill="currentColor" fillOpacity="0.1" />
+      <path d="M9 8.1 L9.4 5.2 L14.7 5.2 L15 8.1" />
+      <path d="M5.3 12.1 C8.3 13.7, 15.7 13.7, 18.7 12.1" />
+      <path d="M10.1 13.2 L10.1 15.1 L13.9 15.1 L13.9 13.2" />
+    </svg>
+  ),
 };
 
 // Toryn.bio navbar, shared by every page (reference/measurements/toryn.md).
@@ -86,7 +96,10 @@ export default function SiteNav({
         {withBlur && <div className={styles.navBlur} aria-hidden="true" />}
         <div className={styles.navInner}>
           <h1 className={styles.brand}>
-            <Link href="/">albert olivé</Link>
+            <Link href="/">
+              <ReactiveAvatar />
+              <span className={styles.brandText}>albert olivé</span>
+            </Link>
           </h1>
           <ul className={styles.links}>
             {navRoutes.map((r) => (
@@ -94,10 +107,11 @@ export default function SiteNav({
                 <Link
                   href={r.href}
                   className={styles.link}
+                  aria-label={r.label}
                   aria-current={active === r.id ? "page" : undefined}
                 >
                   {icons[r.id]}
-                  {r.label}
+                  <span className={styles.linkLabel}>{r.label}</span>
                 </Link>
               </li>
             ))}
