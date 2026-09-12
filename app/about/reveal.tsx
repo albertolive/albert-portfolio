@@ -26,7 +26,6 @@ export default function Reveal({ reveal }: { reveal: Extract<AboutSegment, { kin
       </button>
       <span
         className={open ? `${styles.revealContent} ${styles.open}` : styles.revealContent}
-        hidden={!open}
         inert={!open}
       >
         {reveal.children.map((seg, i) =>

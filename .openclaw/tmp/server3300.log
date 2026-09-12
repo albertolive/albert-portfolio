@@ -1,0 +1,12 @@
+
+> albert-portfolio@0.1.0 start
+> next start --port 3300
+
+▲ Next.js 16.3.4
+- Local:         http://localhost:3300
+- Network:       http://192.168.1.135:3300
+✓ Ready in 67ms
+⚠ Warning: Next.js ignored package-lock.json in /Users/albertolive because it is outside the current Git repository (/Users/albertolive/Repos/albert-portfolio).
+ To use this directory, set `outputFileTracingRoot` in your Next.js config.
+
+✓ Running next.config.ts took 15ms

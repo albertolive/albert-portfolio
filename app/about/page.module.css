@@ -165,8 +165,16 @@
     0 0 0 3px var(--ring);
 }
 
+.revealContent {
+  display: inline;
+}
+
 .revealContent:not(.open) {
-  display: none;
+  filter: blur(6px);
+  opacity: 0.8;
+  user-select: none;
+  color: #fff;
+  pointer-events: none;
 }
 
 .revealContent.open {
