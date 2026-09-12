@@ -111,7 +111,6 @@ in the browser.
 |---|---|---|---|
 | esdeveniments | Home | `esdeveniments.webm` | `esdeveniments.png` |
 | esdeveniments | Events | `esdeveniments-agenda.webm` | `esdeveniments-agenda.png` |
-| esdeveniments | Weekend | `esdeveniments-cap-de-setmana.webm` | `esdeveniments-cap-de-setmana.png` |
 | esdeveniments | News | `esdeveniments-noticies.webm` | `esdeveniments-noticies.png` |
 | eltempsavui | Home | `eltempsavui.webm` | `eltempsavui.png` |
 | eltempsavui | Concepts | `eltempsavui-conceptes.webm` | `eltempsavui-conceptes.png` |
@@ -194,7 +193,7 @@ within 200 ms (the cold-start number of the first hover of the session is
 reported next to it — measured 98 ms cold, ~0–120 ms warm, since the first
 hover also pays for the media pipeline), leaving pauses and rewinds to 0, Tab
 focus plays and moving focus away rewinds, only one clip playing at a time,
-the four esdeveniments section buttons swapping the clip and `aria-pressed`,
+the three esdeveniments section buttons swapping the clip and `aria-pressed`,
 touch = no autoplay + labelled 44 px tap-to-play + a section tap that does not
 start playback, reduced motion = nothing plays and no clip is fetched while
 section buttons still swap the poster, no `googlesyndication`/`doubleclick`
@@ -219,7 +218,7 @@ untouched by this work.
 
 ## Still unverified / known limits
 
-- `esdeveniments.cat` (all four clips) serves `body { overflow-y: hidden }`, so
+- `esdeveniments.cat` (all three clips) serves `body { overflow-y: hidden }`, so
   the document cannot scroll at all in headless Chromium: `window.scrollTo`,
   `page.mouse.wheel` and `PageDown` all leave `scrollY` at 0 while
   `body.scrollHeight` is ~7900 px. The capture injects
@@ -273,7 +272,7 @@ untouched by this work.
   (measured 98 ms including the media pipeline); later hovers are served from
   the HTTP cache in ~0–120 ms. Nothing is prefetched, so a visitor who never
   hovers downloads no video at all.
-- Seven clips (all four esdeveniments sections, eltempsavui Home,
+- Six clips (all three esdeveniments sections, eltempsavui Home,
   culturacardedeu Events and the Garmin listing) needed the two-pass
   bitrate-constrained path to stay under 600 KB; their CRF is not the
   single-pass 32–36 ladder. Files and dates are in the manifest.

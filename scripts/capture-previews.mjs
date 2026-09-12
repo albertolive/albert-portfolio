@@ -101,8 +101,6 @@ const AD_REQUEST_RE =
  * 2026-09-12, re-checked on capture. Nothing here is invented.
  *
  * esdeveniments.cat  nav: Inici -> /, Agenda -> /catalunya, Noticies -> /noticies.
- *                    "Cap de setmana" is the site's own label for the weekend
- *                    segment of the agenda (/catalunya/cap-de-setmana).
  * eltempsavui.cat    nav: "El Temps Avui" -> /, "Conceptes" -> /conceptes. The
  *                    homepage section is labelled "Home" here so the card nav
  *                    does not repeat the project title; the live nav label is
@@ -120,16 +118,10 @@ export const PROJECTS = [
     expectTitle: /Què fer/,
     expectText: /Agenda|Què fer/,
     labelsVerified:
-      "site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`; “Cap de setmana” is the site’s own label for the weekend segment of the agenda → `/catalunya/cap-de-setmana`.",
+      "site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`.",
     sections: [
       { label: "Home", href: "https://esdeveniments.cat/", path: "/" },
       { label: "Events", href: "https://esdeveniments.cat/catalunya", path: "/catalunya", asset: "agenda" },
-      {
-        label: "Weekend",
-        href: "https://esdeveniments.cat/catalunya/cap-de-setmana",
-        path: "/catalunya/cap-de-setmana",
-        asset: "cap-de-setmana",
-      },
       { label: "News", href: "https://esdeveniments.cat/noticies", path: "/noticies", asset: "noticies" },
     ],
   },

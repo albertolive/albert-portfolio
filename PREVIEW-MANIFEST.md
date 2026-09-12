@@ -51,9 +51,8 @@ page the clip and the card link point at.
 
 | Project | Card link | Captured source | Section | Section URL | Label verified as |
 |---|---|---|---|---|---|
-| esdeveniments.cat | https://esdeveniments.cat | https://esdeveniments.cat | Home | https://esdeveniments.cat/ | site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`; “Cap de setmana” is the site’s own label for the weekend segment of the agenda → `/catalunya/cap-de-setmana`. |
+| esdeveniments.cat | https://esdeveniments.cat | https://esdeveniments.cat | Home | https://esdeveniments.cat/ | site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`. |
 | esdeveniments.cat | 〃 | 〃 | Events | https://esdeveniments.cat/catalunya | 〃 |
-| esdeveniments.cat | 〃 | 〃 | Weekend | https://esdeveniments.cat/catalunya/cap-de-setmana | 〃 |
 | esdeveniments.cat | 〃 | 〃 | News | https://esdeveniments.cat/noticies | 〃 |
 | eltempsavui.cat | https://eltempsavui.cat | https://eltempsavui.cat | Home | https://eltempsavui.cat/ | site nav, 2026-09-12: the homepage nav item is labelled “El Temps Avui” → `/`; the card calls that page “Home” so its nav does not repeat the project title. “Conceptes” → `/conceptes`. |
 | eltempsavui.cat | 〃 | 〃 | Concepts | https://eltempsavui.cat/conceptes | 〃 |
@@ -73,7 +72,6 @@ a clip below `2` fails the run instead of being written.
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | esdeveniments.cat | Home | https://esdeveniments.cat/ | `/video/projects/esdeveniments.webm` | `/images/projects/esdeveniments.png` | 1280×720 | 6.0 s | 533 KB | vp9 | 32 | 6.49 | 2026-09-12 | yes |
 | esdeveniments.cat | Events | https://esdeveniments.cat/catalunya | `/video/projects/esdeveniments-agenda.webm` | `/images/projects/esdeveniments-agenda.png` | 1280×720 | 6.0 s | 543 KB | vp9 | 32 | 6.64 | 2026-09-12 | yes |
-| esdeveniments.cat | Weekend | https://esdeveniments.cat/catalunya/cap-de-setmana | `/video/projects/esdeveniments-cap-de-setmana.webm` | `/images/projects/esdeveniments-cap-de-setmana.png` | 1280×720 | 6.0 s | 541 KB | vp9 | 32 | 7.34 | 2026-09-12 | yes |
 | esdeveniments.cat | News | https://esdeveniments.cat/noticies | `/video/projects/esdeveniments-noticies.webm` | `/images/projects/esdeveniments-noticies.png` | 1280×720 | 6.0 s | 516 KB | vp9 | 32 | 12.75 | 2026-09-12 | yes |
 | eltempsavui.cat | Home | https://eltempsavui.cat/ | `/video/projects/eltempsavui.webm` | `/images/projects/eltempsavui.png` | 1280×720 | 6.0 s | 523 KB | vp9 | 32 | 3.72 | 2026-09-12 | yes |
 | eltempsavui.cat | Concepts | https://eltempsavui.cat/conceptes | `/video/projects/eltempsavui-conceptes.webm` | `/images/projects/eltempsavui-conceptes.png` | 1280×720 | 6.0 s | 546 KB | vp9 | 34 | 2.62 | 2026-09-12 | yes |
@@ -89,7 +87,7 @@ a clip below `2` fails the run instead of being written.
 
 - Live URL: https://esdeveniments.cat
 - Catalan events platform: TypeScript frontend, Java backend, automated metadata collection.
-- Section labels — site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`; “Cap de setmana” is the site’s own label for the weekend segment of the agenda → `/catalunya/cap-de-setmana`.
+- Section labels — site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`.
 - Advertising is kept out of the recording in three layers: (1) requests to the ad hosts below are blocked at the
   network layer, so Auto Ads cannot inject anchor/vignette containers after load; (2) `ins.adsbygoogle`,
   `iframe[src*=googlesyndication|doubleclick]`, `[id*=div-gpt-ad]` and their wrappers — plus ad boxes left empty by
@@ -112,14 +110,6 @@ a clip below `2` fails the run instead of being written.
 - Consent handling: none present.
 - Motion: 1980 px of wheel-driven scroll over 6 s (target 1980 px of 7966 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
 - Motion energy: **6.64** mean per-frame luma delta over 149 frames (threshold 2, peak 97.707), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
-
-**Weekend** — [https://esdeveniments.cat/catalunya/cap-de-setmana](https://esdeveniments.cat/catalunya/cap-de-setmana)
-
-- Recorded `https://www.esdeveniments.cat/catalunya/cap-de-setmana` on 2026-09-12 → `/video/projects/esdeveniments-cap-de-setmana.webm` (1280×720, vp9, 6.0 s, 541 KB, two-pass at 737 kbps), poster `/images/projects/esdeveniments-cap-de-setmana.png` (1200×675).
-- Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
-- Consent handling: none present.
-- Motion: 1980 px of wheel-driven scroll over 6 s (target 1980 px of 7216 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
-- Motion energy: **7.34** mean per-frame luma delta over 149 frames (threshold 2, peak 93.817), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
 
 **News** — [https://esdeveniments.cat/noticies](https://esdeveniments.cat/noticies)
 

@@ -44,12 +44,6 @@ export const projects: Project[] = [
         image: "/images/projects/esdeveniments-agenda.png",
       },
       {
-        label: "Weekend",
-        href: "https://esdeveniments.cat/catalunya/cap-de-setmana",
-        video: "/video/projects/esdeveniments-cap-de-setmana.webm",
-        image: "/images/projects/esdeveniments-cap-de-setmana.png",
-      },
-      {
         label: "News",
         href: "https://esdeveniments.cat/noticies",
         video: "/video/projects/esdeveniments-noticies.webm",
