@@ -213,6 +213,9 @@ export default function ProjectPreview({
             sizes="(min-width: 640px) 50vw, 100vw"
             draggable={false}
           />
+          {/* No `poster`: the optimised <Image> underneath is the still frame,
+              always visible until a clip actually plays. A `poster` URL would
+              bypass next/image and pull the full-size PNG on first load. */}
           <video
             ref={videoRef}
             className={`${styles.video} ${playing ? styles.videoVisible : ""}`}
@@ -221,7 +224,6 @@ export default function ProjectPreview({
             loop
             playsInline
             preload="none"
-            poster={active.image}
             aria-hidden="true"
           />
         </span>

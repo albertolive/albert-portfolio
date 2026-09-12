@@ -172,7 +172,7 @@ async function main() {
     return cards.map((c) => c.title).join(" → ");
   });
 
-  await check("posters are lazy and local on every card", async () => {
+  await check("previews carry no raw poster URL and fetch no clip up front", async () => {
     const previews = await page.evaluate(
       (selector) =>
         [...document.querySelectorAll(selector)].map((v) => ({
@@ -189,11 +189,14 @@ async function main() {
     assert.equal(previews.length, 6);
     assert.ok(previews.every((v) => !v.src), "no clip is fetched before it is needed");
     assert.ok(
+      previews.every((v) => v.poster === null),
+      `a poster attribute would bypass next/image and fetch the full-size PNG: ${JSON.stringify(previews.map((v) => v.poster))}`,
+    );
+    assert.ok(
       previews.every(
         (v) =>
           v.dataSrc?.startsWith("/video/projects/") &&
           v.dataSrc.endsWith(".webm") &&
-          v.poster?.startsWith("/images/projects/") &&
           v.muted &&
           v.loop &&
           v.playsInline &&
@@ -201,7 +204,28 @@ async function main() {
       ),
       JSON.stringify(previews),
     );
-    return "preload=none, local webm + poster, muted/loop/playsinline";
+    return "preload=none, local webm, no poster attribute, muted/loop/playsinline";
+  });
+
+  await check("first load requests no raw /images/projects/ asset", async () => {
+    const raw = await page.evaluate(() =>
+      performance
+        .getEntriesByType("resource")
+        .map((e) => new URL(e.name).pathname)
+        .filter((path) => path.startsWith("/images/projects/")),
+    );
+    assert.deepEqual(raw, [], `raw poster paths fetched: ${raw.join(", ")}`);
+    const stills = await page.evaluate(
+      (selector) =>
+        [...document.querySelectorAll(selector)].map((v) => v.parentElement.querySelector("img")?.getAttribute("src")),
+      CARD_VIDEO,
+    );
+    assert.equal(stills.length, 6);
+    assert.ok(
+      stills.every((src) => src?.startsWith("/_next/image?")),
+      `every still must go through next/image: ${JSON.stringify(stills)}`,
+    );
+    return "0 raw PNG requests, 6 optimised stills";
   });
 
   await check("hover starts playback within 200 ms (cold start reported)", async () => {

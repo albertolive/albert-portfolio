@@ -65,8 +65,8 @@ try {
   assert.equal(content.publicProjects, 6);
   assert.equal(content.previews.length, 6);
   assert.ok(content.previews.every(({ source, muted, loop, playsInline, preload, poster }) =>
-    source?.startsWith('/video/projects/') && source.endsWith('.webm') && muted && loop && playsInline && preload === 'none' && poster?.startsWith('/images/projects/')
-  ), "all project previews use local posters and lazy WebM video attributes");
+    source?.startsWith('/video/projects/') && source.endsWith('.webm') && muted && loop && playsInline && preload === 'none' && poster === null
+  ), "all project previews use lazy WebM video attributes and no raw poster (the still is a next/image)");
   assert.ok(content.calendarDays >= 300, "real calendar data must load, not just the fallback");
   assert.match(content.summary, /[\d,]+ contributions/);
   assert.equal(content.contact, "https://www.linkedin.com/in/albertolivecorbella/");

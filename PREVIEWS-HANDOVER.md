@@ -154,7 +154,7 @@ Behaviour matrix (all of it lives in `project-preview.tsx`):
 | Hovering another card | Previous card pauses and rewinds — only one preview ever plays |
 | Touch (`hover: none` / `pointer: coarse`) | No autoplay: poster + a labelled "Play preview" button (44 px). Tap plays, tap again pauses. Section buttons swap the source without starting playback |
 | `prefers-reduced-motion: reduce` | No playback at all, no clip fetched (`display: none`), no play button; the section nav still swaps the poster only |
-| Any state | `preload="none"`, `src` assigned only when a clip is actually needed, video `aria-hidden`, poster carries the alt text |
+| Any state | `preload="none"`, `src` assigned only when a clip is actually needed, video `aria-hidden`, and **no `poster` attribute**: a poster URL bypasses `next/image` and pulls the full-size PNG on first load, so the still is always the optimised `<Image>` underneath (which carries the alt text) |
 
 Accessibility: real `<button type="button">` elements with `aria-pressed`,
 grouped in `role="group"` labelled "Preview sections of <project>"; visible
