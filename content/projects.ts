@@ -1,3 +1,10 @@
+export type ProjectSection = {
+  label: string;
+  href: string;
+  video: string;
+  image: string;
+};
+
 export type Project = {
   slug: string;
   title: string;
@@ -8,6 +15,8 @@ export type Project = {
   image: string;
   imageAlt: string;
   video: string;
+  /** Extra pages of the same site the card can preview; first entry is the default. */
+  sections?: ProjectSection[];
 };
 
 export const projects: Project[] = [
@@ -21,6 +30,32 @@ export const projects: Project[] = [
     image: "/images/projects/esdeveniments.png",
     imageAlt: "esdeveniments.cat homepage showing events across Catalonia",
     video: "/video/projects/esdeveniments.webm",
+    sections: [
+      {
+        label: "Inici",
+        href: "https://esdeveniments.cat/",
+        video: "/video/projects/esdeveniments.webm",
+        image: "/images/projects/esdeveniments.png",
+      },
+      {
+        label: "Agenda",
+        href: "https://esdeveniments.cat/catalunya",
+        video: "/video/projects/esdeveniments-agenda.webm",
+        image: "/images/projects/esdeveniments-agenda.png",
+      },
+      {
+        label: "Cap de setmana",
+        href: "https://esdeveniments.cat/catalunya/cap-de-setmana",
+        video: "/video/projects/esdeveniments-cap-de-setmana.webm",
+        image: "/images/projects/esdeveniments-cap-de-setmana.png",
+      },
+      {
+        label: "Notícies",
+        href: "https://esdeveniments.cat/noticies",
+        video: "/video/projects/esdeveniments-noticies.webm",
+        image: "/images/projects/esdeveniments-noticies.png",
+      },
+    ],
   },
   {
     slug: "eltempsavui",
@@ -32,6 +67,20 @@ export const projects: Project[] = [
     image: "/images/projects/eltempsavui.png",
     imageAlt: "El Temps Avui weather forecast",
     video: "/video/projects/eltempsavui.webm",
+    sections: [
+      {
+        label: "Portada",
+        href: "https://eltempsavui.cat/",
+        video: "/video/projects/eltempsavui.webm",
+        image: "/images/projects/eltempsavui.png",
+      },
+      {
+        label: "Conceptes",
+        href: "https://eltempsavui.cat/conceptes",
+        video: "/video/projects/eltempsavui-conceptes.webm",
+        image: "/images/projects/eltempsavui-conceptes.png",
+      },
+    ],
   },
   {
     slug: "culturacardedeu",
@@ -43,6 +92,20 @@ export const projects: Project[] = [
     image: "/images/projects/culturacardedeu.png",
     imageAlt: "Cultura Cardedeu cultural events banner",
     video: "/video/projects/culturacardedeu.webm",
+    sections: [
+      {
+        label: "Agenda",
+        href: "https://culturacardedeu.com/",
+        video: "/video/projects/culturacardedeu.webm",
+        image: "/images/projects/culturacardedeu.png",
+      },
+      {
+        label: "Notícies",
+        href: "https://culturacardedeu.com/noticies",
+        video: "/video/projects/culturacardedeu-noticies.webm",
+        image: "/images/projects/culturacardedeu-noticies.png",
+      },
+    ],
   },
   {
     slug: "nowcast-cardedeu",

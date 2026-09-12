@@ -37,22 +37,27 @@ export default function ProjectsPage() {
         </div>
         <ul className={styles.grid}>
           {projects.map((p) => (
-              <li key={p.slug} className={styles.card}>
-                <a className={styles.cardLink} href={p.href} target="_blank" rel="noreferrer">
-                  <ProjectPreview image={p.image} imageAlt={p.imageAlt} video={p.video} />
-                  <span className={styles.cardBody}>
-                    <span className={styles.cardTitle}>{p.title}</span>
-                    <span className={styles.cardDesc}>{p.description}</span>
-                    <span className={styles.cardMeta}>
-                      <span className={styles.cardYear}>{p.year}</span>
-                      {p.tech.map((tech) => (
-                        <span key={tech} className={styles.cardTag}>{tech}</span>
-                      ))}
-                    </span>
-                    <span className={styles.cardAction}>{p.href.includes("github.com") ? "View code" : "Visit website"} <ArrowUpRightIcon /></span>
-                  </span>
-                </a>
-              </li>
+            <ProjectPreview
+              key={p.slug}
+              title={p.title}
+              href={p.href}
+              image={p.image}
+              imageAlt={p.imageAlt}
+              video={p.video}
+              sections={p.sections}
+            >
+              <span className={styles.cardBody}>
+                <span className={styles.cardTitle}>{p.title}</span>
+                <span className={styles.cardDesc}>{p.description}</span>
+                <span className={styles.cardMeta}>
+                  <span className={styles.cardYear}>{p.year}</span>
+                  {p.tech.map((tech) => (
+                    <span key={tech} className={styles.cardTag}>{tech}</span>
+                  ))}
+                </span>
+                <span className={styles.cardAction}>{p.href.includes("github.com") ? "View code" : "Visit website"} <ArrowUpRightIcon /></span>
+              </span>
+            </ProjectPreview>
           ))}
         </ul>
         <a className={styles.moreProjectsLink} href={site.github} target="_blank" rel="noopener noreferrer">
