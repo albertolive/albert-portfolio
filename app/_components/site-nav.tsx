@@ -92,15 +92,15 @@ export default function SiteNav({
       >
         {/* Veil must live INSIDE the nav stacking context (like toryn's
             header): z -1 puts it under the nav text but above page content,
-            so scrolled/hovered cards (z 10) blur out under the brand h1. */}
+            so scrolled/hovered cards (z 10) blur out under the brand. */}
         {withBlur && <div className={styles.navBlur} aria-hidden="true" />}
         <div className={styles.navInner}>
-          <h1 className={styles.brand}>
+          <div className={styles.brand}>
             <Link href="/">
               <ReactiveAvatar />
               <span className={styles.brandText}>albert olivé</span>
             </Link>
-          </h1>
+          </div>
           <ul className={styles.links}>
             {navRoutes.map((r) => (
               <li key={r.id}>

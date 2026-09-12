@@ -26,11 +26,16 @@ export default function Reveal({ reveal }: { reveal: Extract<AboutSegment, { kin
       </button>
       <span
         className={open ? `${styles.revealContent} ${styles.open}` : styles.revealContent}
+        hidden={!open}
         inert={!open}
       >
         {reveal.children.map((seg, i) =>
           seg.kind === "text" ? (
             <span key={i}>{seg.text}</span>
+          ) : seg.kind === "link" ? (
+            <a key={i} className={styles.mail} href={seg.href}>
+              {seg.text}
+            </a>
           ) : (
             <Reveal key={seg.id} reveal={seg} />
           ),

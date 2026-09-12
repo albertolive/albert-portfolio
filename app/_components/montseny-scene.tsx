@@ -157,7 +157,7 @@ export default function MontsenyScene() {
     <figure className={styles.landscape}>
       <div className={styles.scene} ref={sceneRef} data-flying={flying}>
         <Image
-          src="/images/montseny-cardedeu.webp"
+          src="/images/montseny-snow-panorama.jpg"
           alt="Montseny seen from Cardedeu, photographed by Albert Olivé"
           fill
           sizes="100vw"

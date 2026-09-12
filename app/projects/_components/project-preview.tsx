@@ -60,6 +60,7 @@ export default function ProjectPreview({
   sections,
   children,
 }: ProjectPreviewProps) {
+  const cardRef = useRef<HTMLLIElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   /** Stable per-card identity, so a card recognises its own claim on the player. */
   const card = useId();
@@ -74,6 +75,24 @@ export default function ProjectPreview({
 
   const tabs = sections && sections.length > 1 ? sections : null;
   const active = tabs?.[index] ?? { label: title, href, video, image };
+
+  useEffect(() => {
+    const element = cardRef.current;
+    if (!element || matches(REDUCED_MOTION) || !("IntersectionObserver" in window)) return;
+
+    element.setAttribute("data-reveal", "");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        element.setAttribute("data-revealed", "true");
+        observer.unobserve(element);
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
 
   /** The clip the current selection points at, read live (never from a stale render). */
   const currentVideo = () => (tabs ? tabs[indexRef.current].video : video);
@@ -197,6 +216,7 @@ export default function ProjectPreview({
 
   return (
     <li
+      ref={cardRef}
       className={styles.card}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}

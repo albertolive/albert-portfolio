@@ -32,9 +32,6 @@ export const metadata: Metadata = {
     template: `%s — ${site.name}`,
   },
   description: site.description,
-  alternates: {
-    canonical: "/",
-  },
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
   openGraph: {
@@ -65,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${spaceGrotesk.variable} ${interTight.variable} ${newsreader.variable}`}
     >
       <body>{children}</body>

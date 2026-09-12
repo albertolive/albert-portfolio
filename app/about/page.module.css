@@ -165,19 +165,12 @@
     0 0 0 3px var(--ring);
 }
 
-/* Reveal content — inline, blurred when closed, no layout shift */
-.revealContent {
-  display: inline;
-}
-
 .revealContent:not(.open) {
-  filter: blur(6px);
-  opacity: 0.8;
-  user-select: none;
-  color: #fff;
+  display: none;
 }
 
 .revealContent.open {
+  display: inline;
   animation: aboutReveal 0.6s ease both;
 }
 

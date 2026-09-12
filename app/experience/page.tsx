@@ -12,6 +12,20 @@ export const metadata: Metadata = {
   title: "Experience",
   description:
     "Albert Olivé Corbella's CV — 12 years across esdeveniments.cat, IOTA Foundation, Consensys (MetaMask), letgo, CornerJob and more.",
+  alternates: { canonical: "/experience" },
+  openGraph: {
+    type: "website",
+    url: "/experience",
+    title: `Experience — ${site.name}`,
+    description: "Albert Olivé Corbella's CV and 12 years of experience building products and leading engineering teams.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} — ${site.shortTitle}` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Experience — ${site.name}`,
+    description: "Albert Olivé Corbella's CV and 12 years of experience building products and leading engineering teams.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function ExperiencePage() {

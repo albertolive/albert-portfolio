@@ -44,7 +44,7 @@ the measured reference values; substitutions are flagged.
 on every page. `app/_components/site-nav.tsx`:
 
 - `nav[aria-label="Primary navigation"]`, absolute top, z-99.
-- Brand `h1` "albert olivé" 20px/700 lowercase, `margin-right: auto`,
+- Brand `div` "albert olivé" 20px/700 lowercase, `margin-right: auto`,
   hidden below 686px.
 - Links: inline-flex, gap .4em icon+label, 20px/400 lowercase
   `#27242b` (light tone: `#fff`), color transition 200ms, hover/focus →
@@ -59,15 +59,19 @@ on every page. `app/_components/site-nav.tsx`:
 
 ## Page: `/` (home — jrands identity)
 
-Layout: body `100dvh`, `overflow: hidden` on desktop only (mobile
+Layout: body `100dvh`, `overflow: clip` on desktop only (mobile
 scrolls). Frame inset 20px desktop / 12px mobile. Video cover, muted loop
 `playsinline`, poster fallback. Badge top 26px centered (mobile: 14px).
 Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
 **the jrands glass dock is removed** (2026-09-08 review).
 
+The document keeps the visual treatment unchanged while providing one
+visually hidden `h1` and a short description for search engines and assistive
+technology.
+
 - Badge: white, radius 12, shadow `0 4px 16px rgba(0,0,0,.14), 0 1px 4px
   rgba(0,0,0,.08)`, Space Grotesk 600 15px, dot 10px lime with glow.
-  Links to `/about`.
+  Links to `/projects`.
 - Bottom bar: 14px/600 ls .84px `rgba(0,0,0,.65)` — name, role,
   location, clock, year.
 - Clock: client, per-second, Europe/Madrid, unmount-safe.
@@ -106,7 +110,9 @@ Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
 - Card: one subtle `rgba(17,17,17,.08)` border, 12px radius, no shadow or
   scale. The existing 16:9 project image is edge-to-edge; content is 16px
   mobile / 20px desktop, title 16px/500, description 14px/1.75, with text
-  technology labels and an explicit website/code action where public.
+  technology labels and an explicit website/code action where public. Cards
+  use `content-visibility: auto`; preview videos keep `preload="none"` and
+  load only after pointer, focus, or touch interaction.
 - Focus-visible: 2px solid `--accent`, offset 2px (our addition).
 - Verification: `npm run check:projects` checks contribution parsing and
   Matter.js collision transfer. With `agent-browser` installed and a production
@@ -127,13 +133,28 @@ Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
   text. Open: `#fbd3cb` bg, dark text. Pills are **recursive** (2026-09-08):
   a pill's hidden content is the sentence continuation and can contain
   further pills (ped.ro's real shape — `content/about.ts` is a segment
-  tree, 8 reveals).
-- Reveal content: inline, closed = blur 6px + opacity .8 + inert; open =
-  600ms unblur. Closing a parent does not close nested children.
-- Counter: fixed top-right 16px, serif italic 16px, `R 0 / 8`, aria-live
+  tree with 4 root hints and 10 total reveals). GitHub, LinkedIn, and email
+  remain ordinary prose links.
+- Reveal content: closed = native `hidden` + `inert` with zero layout space;
+  open = inline with a 600ms reveal. Closing a parent does not close nested
+  children.
+- Counter: fixed top-right 16px, serif italic 16px, `R 0 / 10`, aria-live
   polite, hidden on `(hover: none)`.
 - Navbar: shared toryn `SiteNav` (light tone).
-- Video: only if content provided (see CONTENT-NEEDED.md).
+- Video: decorative VP9 WebM (`public/video/about.webm`) with a WebP poster
+  (`public/images/about-poster.webp`) and `preload="metadata"`. It is muted,
+  loops, plays inline, and is hidden from assistive technology.
+
+## Metadata and media
+
+- `/`, `/about`, `/experience`, and `/projects` define self-referencing
+  canonicals and route-specific Open Graph and Twitter metadata.
+- `app/opengraph-image.tsx` generates the 1200×630 social image.
+  `app/sitemap.ts`, `app/robots.ts`, `app/icon.png`, and
+  `app/apple-icon.png` provide the remaining search and icon assets.
+- The shared closing scene uses
+  `public/images/montseny-snow-panorama.jpg`. It stays lazy because it appears
+  after the main page content.
 
 ## Motion
 

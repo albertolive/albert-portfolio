@@ -11,6 +11,21 @@ import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Projects",
+  description: "Selected AI-native products, local platforms, weather tools, and open-source work built by Albert Olivé Corbella.",
+  alternates: { canonical: "/projects" },
+  openGraph: {
+    type: "website",
+    url: "/projects",
+    title: `Projects — ${site.name}`,
+    description: "Selected AI-native products, local platforms, weather tools, and open-source work built by Albert Olivé Corbella.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} — ${site.shortTitle}` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Projects — ${site.name}`,
+    description: "Selected AI-native products, local platforms, weather tools, and open-source work built by Albert Olivé Corbella.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function ProjectsPage() {

@@ -9,6 +9,21 @@ import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "About",
+  description: "About Albert Olivé Corbella, an AI product engineer and engineering leader in Cardedeu building AI-native products from idea to production.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    type: "website",
+    url: "/about",
+    title: `About — ${site.name}`,
+    description: "About Albert Olivé Corbella, an AI product engineer and engineering leader in Cardedeu building AI-native products from idea to production.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} — ${site.shortTitle}` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `About — ${site.name}`,
+    description: "About Albert Olivé Corbella, an AI product engineer and engineering leader in Cardedeu building AI-native products from idea to production.",
+    images: ["/opengraph-image"],
+  },
 };
 
 // /about — ped.ro identity (reference/measurements/pedro.md).
@@ -19,14 +34,16 @@ export default function AboutPage() {
       <div className={styles.videoWrap} aria-hidden="true">
         <video
           className={styles.videoBg}
-          src="/video/about.mp4"
+          poster="/images/about-poster.webp"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           disablePictureInPicture
-        />
+        >
+          <source src="/video/about.webm" type="video/webm" />
+        </video>
       </div>
       <Grain />
       <div className={styles.contentLayer}>
@@ -39,13 +56,14 @@ export default function AboutPage() {
                 <span key={i} className={styles.fade} style={{ "--delay": i } as React.CSSProperties}>
                   {seg.text}
                 </span>
+              ) : seg.kind === "link" ? (
+                <a key={i} className={styles.mail} href={seg.href}>
+                  {seg.text}
+                </a>
               ) : (
                 <Reveal key={seg.id} reveal={seg} />
               ),
             )}
-            <a className={styles.mail} href={`mailto:${site.email}`}>
-              {site.email}
-            </a>
           </div>
         </main>
       </div>
