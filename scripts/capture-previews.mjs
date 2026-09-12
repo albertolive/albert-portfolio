@@ -4,7 +4,8 @@
  *
  *   node scripts/capture-previews.mjs --all
  *   node scripts/capture-previews.mjs --project esdeveniments
- *   node scripts/capture-previews.mjs --project esdeveniments --section agenda
+ *   node scripts/capture-previews.mjs --project esdeveniments --section events
+ *   node scripts/capture-previews.mjs --manifest-only
  *
  * For every configured section the script opens the live URL in headless
  * Chromium at 1440x900, dismisses consent overlays, removes ad containers and
@@ -33,8 +34,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const VIDEO_DIR = path.join(ROOT, "public", "video", "projects");
-const IMAGE_DIR = path.join(ROOT, "public", "images", "projects");
+const PUBLIC_DIR = path.join(ROOT, "public");
+const VIDEO_DIR = path.join(PUBLIC_DIR, "video", "projects");
+const IMAGE_DIR = path.join(PUBLIC_DIR, "images", "projects");
 const CONTENT = path.join(ROOT, "content", "projects.ts");
 const WORK_DIR = path.join(os.tmpdir(), "portfolio-preview-capture");
 const MANIFEST = path.join(ROOT, "PREVIEW-MANIFEST.md");
@@ -89,14 +91,20 @@ const AD_REQUEST_RE =
   /^https?:\/\/[^/]*(googlesyndication\.com|doubleclick\.net|googleadservices\.com|adservice\.google\.com|amazon-adsystem\.com|adsbygoogle\.js)/i;
 
 /**
- * Section labels and URLs below were read from each site's own navigation on
- * 2026-09-12 and re-checked on capture. Nothing here is invented.
+ * `label` is what the card nav shows, and the portfolio UI is English, so it is
+ * the English name of the page the button previews. `asset` is the stem the
+ * clip and poster for that section were captured under (`<slug>-<asset>.webm` /
+ * `.png`), fixed at capture time so renaming a card label can never rename a
+ * file — the assets and `content/projects.ts` point at the same paths either
+ * way. `labelsVerified` records what the *site itself* calls the section (these
+ * sites are Catalan) and was read from each site's own navigation on
+ * 2026-09-12, re-checked on capture. Nothing here is invented.
  *
  * esdeveniments.cat  nav: Inici -> /, Agenda -> /catalunya, Noticies -> /noticies.
  *                    "Cap de setmana" is the site's own label for the weekend
  *                    segment of the agenda (/catalunya/cap-de-setmana).
  * eltempsavui.cat    nav: "El Temps Avui" -> /, "Conceptes" -> /conceptes. The
- *                    homepage section is named "Portada" here so the card nav
+ *                    homepage section is labelled "Home" here so the card nav
  *                    does not repeat the project title; the live nav label is
  *                    recorded in the manifest.
  * culturacardedeu.com nav: Agenda -> /, Noticies -> /noticies.
@@ -114,14 +122,15 @@ export const PROJECTS = [
     labelsVerified:
       "site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`; “Cap de setmana” is the site’s own label for the weekend segment of the agenda → `/catalunya/cap-de-setmana`.",
     sections: [
-      { label: "Inici", href: "https://esdeveniments.cat/", path: "/" },
-      { label: "Agenda", href: "https://esdeveniments.cat/catalunya", path: "/catalunya" },
+      { label: "Home", href: "https://esdeveniments.cat/", path: "/" },
+      { label: "Events", href: "https://esdeveniments.cat/catalunya", path: "/catalunya", asset: "agenda" },
       {
-        label: "Cap de setmana",
+        label: "Weekend",
         href: "https://esdeveniments.cat/catalunya/cap-de-setmana",
         path: "/catalunya/cap-de-setmana",
+        asset: "cap-de-setmana",
       },
-      { label: "Notícies", href: "https://esdeveniments.cat/noticies", path: "/noticies" },
+      { label: "News", href: "https://esdeveniments.cat/noticies", path: "/noticies", asset: "noticies" },
     ],
   },
   {
@@ -132,10 +141,10 @@ export const PROJECTS = [
     expectTitle: /El Temps Avui/,
     expectText: /El Temps Avui|previsió/,
     labelsVerified:
-      "site nav, 2026-09-12: the homepage nav item is labelled “El Temps Avui” → `/`; the section is named “Portada” on the card to avoid repeating the project title. “Conceptes” → `/conceptes`.",
+      "site nav, 2026-09-12: the homepage nav item is labelled “El Temps Avui” → `/`; the card calls that page “Home” so its nav does not repeat the project title. “Conceptes” → `/conceptes`.",
     sections: [
-      { label: "Portada", href: "https://eltempsavui.cat/", path: "/" },
-      { label: "Conceptes", href: "https://eltempsavui.cat/conceptes", path: "/conceptes" },
+      { label: "Home", href: "https://eltempsavui.cat/", path: "/" },
+      { label: "Concepts", href: "https://eltempsavui.cat/conceptes", path: "/conceptes", asset: "conceptes" },
     ],
   },
   {
@@ -148,8 +157,8 @@ export const PROJECTS = [
     ads: true,
     labelsVerified: "site nav, 2026-09-12: Agenda → `/`, Notícies → `/noticies`.",
     sections: [
-      { label: "Agenda", href: "https://culturacardedeu.com/", path: "/" },
-      { label: "Notícies", href: "https://culturacardedeu.com/noticies", path: "/noticies" },
+      { label: "Events", href: "https://culturacardedeu.com/", path: "/" },
+      { label: "News", href: "https://culturacardedeu.com/noticies", path: "/noticies", asset: "noticies" },
     ],
   },
   {
@@ -165,11 +174,11 @@ export const PROJECTS = [
   },
   {
     slug: "moveflow",
-    name: "moveflow.app",
+    name: "MoveFlow",
     live: "https://moveflow-site.vercel.app",
     note:
-      "macOS menu bar app for movement reminders. Captured from moveflow-site.vercel.app: " +
-      "https://moveflow.app currently serves an unrelated product by OOMI Software. The card link is unchanged.",
+      "macOS menu bar app for movement reminders. Captured from moveflow-site.vercel.app, which the card also links to: " +
+      "https://moveflow.app serves an unrelated product by OOMI Software, so it is not linked.",
     expectTitle: /MoveFlow/,
     expectText: /MoveFlow/,
     labelsVerified: "single page; label is the document title, 2026-09-12.",
@@ -220,16 +229,31 @@ export function slugify(value) {
 /**
  * Asset names for one captured row. The default (root) page of a project owns
  * the unsuffixed `<slug>.webm` / `<slug>.png` pair, which is also what the
- * card's `image` / `video` fields point at; extra sections get a label suffix.
+ * card's `image` / `video` fields point at; extra sections get the stem they
+ * were captured under (`asset`), falling back to the card label for a section
+ * that has no clip yet.
  */
 export function assetNames(project, section) {
   const isDefault = section.path === "/";
-  const suffix = isDefault || project.sections.length === 1 ? "" : `-${slugify(section.label)}`;
+  const suffix = isDefault || project.sections.length === 1 ? "" : `-${section.asset ?? slugify(section.label)}`;
   return {
     suffix,
     video: `/video/projects/${project.slug}${suffix}.webm`,
     poster: `/images/projects/${project.slug}${suffix}.png`,
   };
+}
+
+/**
+ * `--section` accepts the card label, or the stem the clip was captured under —
+ * so `--section agenda` still selects what the card now calls "Events".
+ */
+function sectionMatches(section, wanted) {
+  const needle = slugify(wanted);
+  return (
+    slugify(section.label) === needle ||
+    section.label.toLowerCase() === String(wanted).toLowerCase() ||
+    (section.asset != null && slugify(section.asset) === needle)
+  );
 }
 
 /* ------------------------------------------------------- toolchain lookup */
@@ -1441,12 +1465,13 @@ async function buildGarminPoster(workdir, output) {
 /* ------------------------------------------------------------------ driver */
 
 function parseArgs(argv) {
-  const out = { all: false, project: null, section: null, help: false, minMotion: MIN_MOTION_DEFAULT };
+  const out = { all: false, project: null, section: null, manifestOnly: false, help: false, minMotion: MIN_MOTION_DEFAULT };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === "--all") out.all = true;
     else if (a === "--project") out.project = argv[++i];
     else if (a === "--section") out.section = argv[++i];
+    else if (a === "--manifest-only") out.manifestOnly = true;
     else if (a === "--min-motion") out.minMotion = Number(argv[++i]);
     else if (a === "--help" || a === "-h") out.help = true;
   }
@@ -1472,17 +1497,27 @@ async function main() {
     console.log(`Usage:
   node scripts/capture-previews.mjs --all
   node scripts/capture-previews.mjs --project <slug> [--section <label>] [--min-motion 2.0]
+  node scripts/capture-previews.mjs --manifest-only
 
 Every clip is scroll-unlocked, asserted to move before recording, and asserted to
 move again after encoding (mean per-frame luma delta >= --min-motion, default
 ${MIN_MOTION_DEFAULT}).
 
+--manifest-only rewrites PREVIEW-MANIFEST.md from the facts already recorded in
+it (no browser, no capture), re-checking every one of them against the assets in
+public/ first. Use it when only the card labels change; --section accepts a card
+label or the stem its clip was captured under.
+
 Slugs:   ${PROJECTS.map((p) => p.slug).join(", ")}
 Sections: ${PROJECTS.map((p) => `${p.slug}: ${p.sections.map((s) => s.label).join(" | ")}`).join("\n           ")}`);
     return;
   }
+  if (args.manifestOnly) {
+    await writeManifestOnly();
+    return;
+  }
   if (!args.all && !args.project) {
-    console.error("Pass --all or --project <slug>. Use --help for usage.");
+    console.error("Pass --all, --project <slug> or --manifest-only. Use --help for usage.");
     process.exit(2);
   }
 
@@ -1516,11 +1551,7 @@ Sections: ${PROJECTS.map((p) => `${p.slug}: ${p.sections.map((s) => s.label).joi
   const failures = [];
 
   for (const project of selected) {
-    const sections = args.section
-      ? project.sections.filter(
-          (s) => slugify(s.label) === slugify(args.section) || s.label.toLowerCase() === args.section.toLowerCase(),
-        )
-      : project.sections;
+    const sections = args.section ? project.sections.filter((s) => sectionMatches(s, args.section)) : project.sections;
     if (sections.length === 0) {
       console.error(`! ${project.slug}: no section matching "${args.section}" (have: ${project.sections.map((s) => s.label).join(", ")})`);
       process.exit(2);
@@ -1566,44 +1597,208 @@ Sections: ${PROJECTS.map((p) => `${p.slug}: ${p.sections.map((s) => s.label).joi
 
 const KB = (bytes) => `${(bytes / 1024).toFixed(0)} KB`;
 
+/** One generated `| … |` table line as trimmed cells, or null if it is not one. */
+function tableCells(line) {
+  if (!line.startsWith("|")) return null;
+  const cells = line.split("|").map((cell) => cell.trim().replace(/^`(.*)`$/, "$1"));
+  if (cells.length < 4 || cells[0] !== "" || cells[cells.length - 1] !== "") return null;
+  return cells.slice(1, -1);
+}
+
+/** Rows of the generated `## Assets` table, exactly as recorded there. */
+function parseAssetTable(source) {
+  const table = source.split("## Assets")[1]?.split("## Per-project notes")[0] ?? "";
+  const rows = [];
+  for (const line of table.split("\n")) {
+    // Project | Section | Section URL | Video | Poster | Dimensions | Duration |
+    // Size | Codec | CRF | [Motion energy |] Captured | Wired to site
+    const cells = tableCells(line);
+    if (!cells || !/^\/video\/projects\/.+\.webm$/.test(cells[3] ?? "")) continue;
+    const hasMotion = cells.length >= 13;
+    const dimensions = (cells[5] ?? "").match(/^(\d+)×(\d+)$/);
+    const duration = (cells[6] ?? "").match(/^([\d.]+) s$/);
+    const size = (cells[7] ?? "").match(/^([\d.]+) KB$/);
+    const crf = (cells[9] ?? "").match(/^\d+$/);
+    const capturedAt = hasMotion ? cells[11] : cells[10];
+    if (!dimensions || !duration || !size || !crf || !/^\d{4}-\d{2}-\d{2}$/.test(capturedAt ?? "")) continue;
+    rows.push({
+      video: cells[3],
+      poster: cells[4],
+      width: Number(dimensions[1]),
+      height: Number(dimensions[2]),
+      durationSeconds: Number(duration[1]),
+      videoBytes: Math.round(Number(size[1]) * 1024),
+      codec: cells[8],
+      crf: Number(crf[0]),
+      motionEnergy: hasMotion && cells[10] !== "–" ? Number(cells[10]) : null,
+      capturedAt,
+    });
+  }
+  return rows;
+}
+
+/**
+ * The per-project notes of the generated manifest, keyed by clip path. They
+ * carry what the Assets table does not: the captured URL, whether the clip went
+ * out as a single CRF pass or two-pass, the poster size, the ad assertion, the
+ * consent handling and the scroll details. A row whose `Recorded …` line does
+ * not parse is left out entirely, so a caller that needs those facts can tell.
+ */
+function parseRowNotes(source) {
+  const notes = new Map();
+  const section = source.split("## Per-project notes")[1]?.split("## Reproducing")[0] ?? "";
+  let current = null;
+  for (const line of section.split("\n")) {
+    const recorded = line.match(
+      /^- Recorded `([^`]+)` on (\d{4}-\d{2}-\d{2}) → `(\/video\/projects\/[^`]+)` \((\d+)×(\d+), ([^,]+), ([\d.]+) s, ([\d.]+) KB(?:, (?:two-pass at (\d+) kbps|crf (\d+)))?\), poster `([^`]+)` \((\d+)×(\d+)\)\.$/,
+    );
+    if (recorded) {
+      const [, capturedUrl, capturedAt, video, , , , , , kbps, crf, poster, posterWidth, posterHeight] = recorded;
+      current = {
+        video,
+        capturedUrl,
+        capturedAt,
+        bitrateKbps: kbps ? Number(kbps) : null,
+        crf: crf ? Number(crf) : null,
+        poster,
+        posterWidth: Number(posterWidth),
+        posterHeight: Number(posterHeight),
+        ads: null,
+        consent: null,
+        motion: null,
+      };
+      notes.set(video, current);
+      continue;
+    }
+    if (!current) continue;
+    const ads = line.match(/^- Ad assertion: \*\*(\w+)\*\* — (\d+) ad element\(s\) removed, (\d+) visible googlesyndication\/doubleclick element\(s\) during recording\.$/);
+    if (ads) {
+      current.ads = { assertion: ads[1], removed: Number(ads[2]), violations: Number(ads[3]) };
+      continue;
+    }
+    const consent = line.match(/^- Consent handling: (.+)\.$/);
+    if (consent) {
+      current.consent = consent[1];
+      continue;
+    }
+    const motion = line.match(
+      /^- Motion: (\d+) px of (\w+)-driven scroll over [\d.]+ s \(target (\d+) px of (\d+) px available(?:, (\d+) inner scroller\(s\))?\); pre-record probe moved (\d+) px\.$/,
+    );
+    if (motion) {
+      current.motion = {
+        ...(current.motion ?? {}),
+        driver: motion[2],
+        pixels: Number(motion[1]),
+        target: Number(motion[3]),
+        room: Number(motion[4]),
+        probePx: Number(motion[6]),
+        wheelProbePx: null,
+        innerScrollers: Number(motion[5] ?? 0),
+        interaction: null,
+      };
+      continue;
+    }
+    const interactive = line.match(
+      /^- Motion: interactive — the page fits the viewport, so the clip opens (.+?) instead of scrolling \(page changed: (yes|no)(?:, plus (\d+) px of scroll inside what opened)?\)\.$/,
+    );
+    if (interactive) {
+      current.motion = {
+        ...(current.motion ?? {}),
+        driver: "interactive",
+        pixels: Number(interactive[3] ?? 0),
+        interaction: { clicked: interactive[1], changed: interactive[2] === "yes", pixels: Number(interactive[3] ?? 0) },
+      };
+      continue;
+    }
+    const energy = line.match(
+      /^- Motion energy: \*\*([\d.]+)\*\* mean per-frame luma delta over (\d+) frames \(threshold ([\d.]+), peak ([\d.]+)\), measured with ffmpeg/,
+    );
+    if (energy) {
+      current.motion = {
+        ...(current.motion ?? {}),
+        energy: Number(energy[1]),
+        frames: Number(energy[2]),
+        threshold: Number(energy[3]),
+        peak: Number(energy[4]),
+      };
+    }
+  }
+  return notes;
+}
+
+/** Toolchain facts for the manifest header, as recorded by the last capture. */
+function readToolchain(source) {
+  const capture = source.match(/^- Capture: Playwright `([^`]+)` driving headless Chromium `([^`]+)`/m);
+  const ffmpeg = source.match(/^- Post-process: `([^`]+)`\./m);
+  if (!capture || !ffmpeg) {
+    throw new Error(`${path.relative(ROOT, MANIFEST)} has no toolchain block to carry over — run a capture first`);
+  }
+  const minMotion = source.match(/`--min-motion` \(default ([\d.]+)\)/m);
+  return {
+    playwrightVersion: capture[1],
+    chromiumVersion: capture[2],
+    ffmpegVersion: ffmpeg[1],
+    minMotion: minMotion ? Number(minMotion[1]) : MIN_MOTION_DEFAULT,
+  };
+}
+
+/**
+ * The recorded facts of the current manifest, as rows the generator can render
+ * again. Rows are matched to the config by the asset paths they point at —
+ * never by the card label, so relabelling a section cannot orphan or duplicate
+ * its recorded facts.
+ */
 async function readExistingRows() {
   const source = await fs.readFile(MANIFEST, "utf8").catch(() => "");
+  if (!source) return new Map();
+  const byVideo = new Map();
+  for (const project of PROJECTS) {
+    for (const section of project.sections) byVideo.set(assetNames(project, section).video, { project, section });
+  }
+  const notes = parseRowNotes(source);
   const rows = new Map();
-  const table = source.split("## Assets")[1]?.split("## Per-project notes")[0] ?? "";
-  for (const line of table.split("\n")) {
-    const m =
-      line.match(
-        /^\| (.+?) \| (.+?) \| (https?:\/\/\S+) \| `(\/video\/projects\/[^`]+)` \| `(\/images\/projects\/[^`]+)` \| (\d+)×(\d+) \| ([\d.]+) s \| ([\d.]+) KB \| (\w+) \| (\d+) \| ([\d.]+|–) \| (\d{4}-\d{2}-\d{2}) \|/,
-      ) ??
-      line.match(
-        /^\| (.+?) \| (.+?) \| (https?:\/\/\S+) \| `(\/video\/projects\/[^`]+)` \| `(\/images\/projects\/[^`]+)` \| (\d+)×(\d+) \| ([\d.]+) s \| ([\d.]+) KB \| (\w+) \| (\d+) \| (\d{4}-\d{2}-\d{2}) \|/,
-      );
-    if (!m) continue;
-    const hasMotion = m.length === 14;
-    const project = PROJECTS.find((p) => p.name === m[1]);
-    if (!project) continue;
-    const section = project.sections.find((s) => s.label === m[2]);
-    if (!section) continue;
-    rows.set(`${project.slug}::${section.label}`, {
+  for (const raw of parseAssetTable(source)) {
+    const target = byVideo.get(raw.video);
+    if (!target) continue;
+    const { project, section } = target;
+    const detail = notes.get(raw.video) ?? {};
+    rows.set(raw.video, {
       slug: project.slug,
       name: project.name,
       live: project.live,
-      label: section.label,
+      label: project.clipLabel ?? section.label,
       sectionLabel: section.label,
-      sectionHref: m[3],
-      video: m[4],
-      poster: m[5],
-      width: Number(m[6]),
-      height: Number(m[7]),
-      durationSeconds: Number(m[8]),
-      videoBytes: Math.round(Number(m[9]) * 1024),
-      codec: m[10],
-      crf: Number(m[11]),
-      motion: hasMotion && m[12] !== "–" ? { energy: Number(m[12]) } : null,
-      capturedAt: hasMotion ? m[13] : m[12],
-      bitrateKbps: null,
-      capturedUrl: "",
-      ads: null,
+      sectionHref: section.href,
+      capturedUrl: detail.capturedUrl ?? "",
+      video: raw.video,
+      poster: raw.poster,
+      width: raw.width,
+      height: raw.height,
+      codec: raw.codec,
+      durationSeconds: raw.durationSeconds,
+      videoBytes: raw.videoBytes,
+      crf: detail.crf ?? raw.crf,
+      bitrateKbps: detail.bitrateKbps ?? null,
+      posterWidth: detail.posterWidth ?? POSTER.width,
+      posterHeight: detail.posterHeight ?? POSTER.height,
+      capturedAt: raw.capturedAt,
+      ads: detail.ads ?? null,
+      consent: detail.consent ?? null,
+      motion:
+        detail.motion ?? {
+          driver: null,
+          pixels: null,
+          target: null,
+          room: null,
+          probePx: null,
+          wheelProbePx: null,
+          innerScrollers: null,
+          energy: raw.motionEnergy,
+          peak: null,
+          frames: null,
+          threshold: null,
+          interaction: null,
+        },
       note: project.note,
       garmin: project.garmin === true,
     });
@@ -1611,9 +1806,88 @@ async function readExistingRows() {
   return rows;
 }
 
+/** Re-checks every recorded fact that can be read back off the assets on disk. */
+async function verifyRowsOnDisk(rows) {
+  const problems = [];
+  for (const row of rows) {
+    const videoFile = path.join(PUBLIC_DIR, row.video);
+    const posterFile = path.join(PUBLIC_DIR, row.poster);
+    if (!existsSync(videoFile)) problems.push(`${row.video}: not on disk`);
+    if (!existsSync(posterFile)) problems.push(`${row.poster}: not on disk`);
+    if (!existsSync(videoFile) || !existsSync(posterFile)) continue;
+    const video = await ffprobeJson(videoFile).catch(() => null);
+    const poster = await ffprobeJson(posterFile).catch(() => null);
+    const check = (what, recorded, onDisk) => {
+      if (recorded == null || onDisk == null) return;
+      if (String(recorded) !== String(onDisk)) problems.push(`${row.video}: ${what} is ${onDisk} on disk, the manifest says ${recorded}`);
+    };
+    const stream = video?.streams?.find((s) => s.width) ?? {};
+    check("width", row.width, stream.width);
+    check("height", row.height, stream.height);
+    check("codec", row.codec, stream.codec_name);
+    if (video) {
+      check("duration", row.durationSeconds.toFixed(1), Number(Number(video.format.duration).toFixed(3)).toFixed(1));
+      check("size", KB(row.videoBytes), KB(Number(video.format.size)));
+    }
+    const shot = poster?.streams?.find((s) => s.width) ?? {};
+    check("poster width", row.posterWidth, shot.width);
+    check("poster height", row.posterHeight, shot.height);
+  }
+  return problems;
+}
+
+/**
+ * Rewrites the manifest without capturing anything. The facts are read back out
+ * of the manifest (they were measured on the capture run and cannot be
+ * re-derived offline: capture URL, ad assertion, consent handling, motion), but
+ * every one that can be read off disk is re-checked against the asset first —
+ * size, duration, dimensions, codec, poster size — so a rewrite can never make
+ * the file describe something other than what is in `public/`. Used when only
+ * the card labels change.
+ */
+async function writeManifestOnly() {
+  const source = await fs.readFile(MANIFEST, "utf8").catch(() => "");
+  if (!source) {
+    throw new Error(`${path.relative(ROOT, MANIFEST)} not found — run a capture (--all or --project <slug>) first`);
+  }
+  const toolchain = readToolchain(source);
+  const rows = [...(await readExistingRows()).values()];
+  const expected = PROJECTS.flatMap((project) => project.sections.map((section) => assetNames(project, section).video));
+  const missing = expected.filter((video) => !rows.some((row) => row.video === video));
+  if (missing.length > 0) {
+    throw new Error(`no recorded row for ${missing.join(", ")} — capture those sections before rewriting the manifest`);
+  }
+  const incomplete = rows.filter(
+    (row) =>
+      !row.capturedUrl ||
+      !row.ads ||
+      row.motion == null ||
+      row.motion.energy == null ||
+      (row.motion.driver !== "interactive" && row.motion.pixels == null),
+  );
+  if (incomplete.length > 0) {
+    throw new Error(
+      `the recorded rows for ${incomplete.map((row) => row.video).join(", ")} are missing facts ` +
+        `(capture URL, ad assertion, consent or motion) — re-capture them instead of rewriting the manifest`,
+    );
+  }
+  const problems = await verifyRowsOnDisk(rows);
+  if (problems.length > 0) {
+    throw new Error(
+      `the manifest does not match the assets on disk:\n  - ${problems.join("\n  - ")}\n` +
+        "re-capture the affected sections: --manifest-only never writes a row it could not verify",
+    );
+  }
+  await writeManifest([], toolchain);
+  console.log(
+    `manifest: ${path.relative(ROOT, MANIFEST)} rewritten from the recorded facts (${rows.length} clip(s)); ` +
+      `${rows.length} video(s) + ${rows.length} poster(s) verified on disk — size, duration, dimensions, codec`,
+  );
+}
+
 async function writeManifest(newEntries, toolchain) {
   const merged = await readExistingRows();
-  for (const entry of newEntries) merged.set(`${entry.slug}::${entry.label}`, entry);
+  for (const entry of newEntries) merged.set(entry.video, entry);
   const rows = [...merged.values()];
   const wired = await wiredPaths();
 
@@ -1654,13 +1928,17 @@ async function writeManifest(newEntries, toolchain) {
   push("- Garmin (`breathing-timer`): the clip is the live Connect IQ store listing; the poster is composed from official");
   push("  Garmin store imagery served by `services.garmin.com/appsLibraryExternalServices/api/` (app icon");
   push("  `806f54bd-339a-4a34-b4ef-9e32f13113d6` plus the three official preview screenshots), used unmodified as store imagery.");
-  push("- moveflow: captured from `https://moveflow-site.vercel.app`, the real project. `https://moveflow.app` currently");
-  push("  serves an unrelated product (\"MoveFlow – Business Management Platform\", OOMI Software). The card link is unchanged.");
+  push("- moveflow: captured from and linked to `https://moveflow-site.vercel.app`, the real project.");
+  push("  `https://moveflow.app` serves an unrelated product (\"MoveFlow – Business Management Platform\", OOMI Software),");
+  push("  so the card does not link to it.");
   push("- Consent overlays are declined/dismissed and ad containers removed before recording, so no consent state and no");
   push("  advertising is recorded.");
   push("");
   push("## Live sources and section labels", "");
-  push("Labels are the sites' own navigation labels, read live on the capture date (nothing invented).");
+  push("`Section` is what the card nav shows — the portfolio UI is English, so the card uses the English name of");
+  push("the page it previews. `Label verified as` records what the site itself calls that page, read from its own");
+  push("navigation on the capture date (these sites are Catalan; nothing is invented), and `Section URL` is the");
+  push("page the clip and the card link point at.");
   push("");
   push("| Project | Card link | Captured source | Section | Section URL | Label verified as |");
   push("|---|---|---|---|---|---|");
@@ -1685,7 +1963,7 @@ async function writeManifest(newEntries, toolchain) {
   for (const project of PROJECTS) {
     for (const section of project.sections) {
       const shown = project.clipLabel ?? section.label;
-      const row = rows.find((r) => r.slug === project.slug && r.label === shown);
+      const row = rows.find((r) => r.video === assetNames(project, section).video);
       if (!row) {
         push(`| ${project.name} | ${shown} | ${section.href} | _not captured_ | _not captured_ | – | – | – | – | – | – | – | – |`);
         continue;
@@ -1748,7 +2026,8 @@ async function writeManifest(newEntries, toolchain) {
   push("## Reproducing", "");
   push("```sh");
   push("node scripts/capture-previews.mjs --all");
-  push("node scripts/capture-previews.mjs --project esdeveniments --section agenda");
+  push("node scripts/capture-previews.mjs --project esdeveniments --section events");
+  push("node scripts/capture-previews.mjs --manifest-only   # relabel card nav only; re-verifies every asset on disk");
   push("```");
   push("");
   await fs.writeFile(MANIFEST, lines.join("\n"), "utf8");

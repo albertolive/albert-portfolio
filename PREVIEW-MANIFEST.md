@@ -36,27 +36,31 @@ cannot drift from the assets on disk.
 - Garmin (`breathing-timer`): the clip is the live Connect IQ store listing; the poster is composed from official
   Garmin store imagery served by `services.garmin.com/appsLibraryExternalServices/api/` (app icon
   `806f54bd-339a-4a34-b4ef-9e32f13113d6` plus the three official preview screenshots), used unmodified as store imagery.
-- moveflow: captured from `https://moveflow-site.vercel.app`, the real project. `https://moveflow.app` currently
-  serves an unrelated product ("MoveFlow – Business Management Platform", OOMI Software). The card link is unchanged.
+- moveflow: captured from and linked to `https://moveflow-site.vercel.app`, the real project.
+  `https://moveflow.app` serves an unrelated product ("MoveFlow – Business Management Platform", OOMI Software),
+  so the card does not link to it.
 - Consent overlays are declined/dismissed and ad containers removed before recording, so no consent state and no
   advertising is recorded.
 
 ## Live sources and section labels
 
-Labels are the sites' own navigation labels, read live on the capture date (nothing invented).
+`Section` is what the card nav shows — the portfolio UI is English, so the card uses the English name of
+the page it previews. `Label verified as` records what the site itself calls that page, read from its own
+navigation on the capture date (these sites are Catalan; nothing is invented), and `Section URL` is the
+page the clip and the card link point at.
 
 | Project | Card link | Captured source | Section | Section URL | Label verified as |
 |---|---|---|---|---|---|
-| esdeveniments.cat | https://esdeveniments.cat | https://esdeveniments.cat | Inici | https://esdeveniments.cat/ | site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`; “Cap de setmana” is the site’s own label for the weekend segment of the agenda → `/catalunya/cap-de-setmana`. |
-| esdeveniments.cat | 〃 | 〃 | Agenda | https://esdeveniments.cat/catalunya | 〃 |
-| esdeveniments.cat | 〃 | 〃 | Cap de setmana | https://esdeveniments.cat/catalunya/cap-de-setmana | 〃 |
-| esdeveniments.cat | 〃 | 〃 | Notícies | https://esdeveniments.cat/noticies | 〃 |
-| eltempsavui.cat | https://eltempsavui.cat | https://eltempsavui.cat | Portada | https://eltempsavui.cat/ | site nav, 2026-09-12: the homepage nav item is labelled “El Temps Avui” → `/`; the section is named “Portada” on the card to avoid repeating the project title. “Conceptes” → `/conceptes`. |
-| eltempsavui.cat | 〃 | 〃 | Conceptes | https://eltempsavui.cat/conceptes | 〃 |
-| culturacardedeu.com | https://culturacardedeu.com | https://culturacardedeu.com | Agenda | https://culturacardedeu.com/ | site nav, 2026-09-12: Agenda → `/`, Notícies → `/noticies`. |
-| culturacardedeu.com | 〃 | 〃 | Notícies | https://culturacardedeu.com/noticies | 〃 |
+| esdeveniments.cat | https://esdeveniments.cat | https://esdeveniments.cat | Home | https://esdeveniments.cat/ | site nav, 2026-09-12: Inici → `/`, Agenda → `/catalunya`, Notícies → `/noticies`; “Cap de setmana” is the site’s own label for the weekend segment of the agenda → `/catalunya/cap-de-setmana`. |
+| esdeveniments.cat | 〃 | 〃 | Events | https://esdeveniments.cat/catalunya | 〃 |
+| esdeveniments.cat | 〃 | 〃 | Weekend | https://esdeveniments.cat/catalunya/cap-de-setmana | 〃 |
+| esdeveniments.cat | 〃 | 〃 | News | https://esdeveniments.cat/noticies | 〃 |
+| eltempsavui.cat | https://eltempsavui.cat | https://eltempsavui.cat | Home | https://eltempsavui.cat/ | site nav, 2026-09-12: the homepage nav item is labelled “El Temps Avui” → `/`; the card calls that page “Home” so its nav does not repeat the project title. “Conceptes” → `/conceptes`. |
+| eltempsavui.cat | 〃 | 〃 | Concepts | https://eltempsavui.cat/conceptes | 〃 |
+| culturacardedeu.com | https://culturacardedeu.com | https://culturacardedeu.com | Events | https://culturacardedeu.com/ | site nav, 2026-09-12: Agenda → `/`, Notícies → `/noticies`. |
+| culturacardedeu.com | 〃 | 〃 | News | https://culturacardedeu.com/noticies | 〃 |
 | nowcast-cardedeu | https://nowcast-cardedeu.vercel.app | https://nowcast-cardedeu.vercel.app | Plourà a Cardedeu? | https://nowcast-cardedeu.vercel.app/ | single page; label is the page title, 2026-09-12. |
-| moveflow.app | https://moveflow-site.vercel.app | https://moveflow-site.vercel.app | Beat Your Sedentary Brain | https://moveflow-site.vercel.app/ | single page; label is the document title, 2026-09-12. |
+| MoveFlow | https://moveflow-site.vercel.app | https://moveflow-site.vercel.app | Beat Your Sedentary Brain | https://moveflow-site.vercel.app/ | single page; label is the document title, 2026-09-12. |
 | Breathing Timer | https://apps.garmin.com/apps/59828c15-7638-4e14-b871-47f0ce0c66f0 | https://apps.garmin.com/apps/59828c15-7638-4e14-b871-47f0ce0c66f0 | Connect IQ Store | https://apps.garmin.com/apps/59828c15-7638-4e14-b871-47f0ce0c66f0 | single page; label is the store listing title, 2026-09-12. |
 
 ## Assets
@@ -67,16 +71,16 @@ a clip below `2` fails the run instead of being written.
 
 | Project | Section | Section URL | Video | Poster | Dimensions | Duration | Size | Codec | CRF | Motion energy | Captured | Wired to site |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| esdeveniments.cat | Inici | https://esdeveniments.cat/ | `/video/projects/esdeveniments.webm` | `/images/projects/esdeveniments.png` | 1280×720 | 6.0 s | 533 KB | vp9 | 32 | 6.49 | 2026-09-12 | yes |
-| esdeveniments.cat | Agenda | https://esdeveniments.cat/catalunya | `/video/projects/esdeveniments-agenda.webm` | `/images/projects/esdeveniments-agenda.png` | 1280×720 | 6.0 s | 543 KB | vp9 | 32 | 6.64 | 2026-09-12 | yes |
-| esdeveniments.cat | Cap de setmana | https://esdeveniments.cat/catalunya/cap-de-setmana | `/video/projects/esdeveniments-cap-de-setmana.webm` | `/images/projects/esdeveniments-cap-de-setmana.png` | 1280×720 | 6.0 s | 541 KB | vp9 | 32 | 7.34 | 2026-09-12 | yes |
-| esdeveniments.cat | Notícies | https://esdeveniments.cat/noticies | `/video/projects/esdeveniments-noticies.webm` | `/images/projects/esdeveniments-noticies.png` | 1280×720 | 6.0 s | 516 KB | vp9 | 32 | 12.75 | 2026-09-12 | yes |
-| eltempsavui.cat | Portada | https://eltempsavui.cat/ | `/video/projects/eltempsavui.webm` | `/images/projects/eltempsavui.png` | 1280×720 | 6.0 s | 523 KB | vp9 | 32 | 3.72 | 2026-09-12 | yes |
-| eltempsavui.cat | Conceptes | https://eltempsavui.cat/conceptes | `/video/projects/eltempsavui-conceptes.webm` | `/images/projects/eltempsavui-conceptes.png` | 1280×720 | 6.0 s | 546 KB | vp9 | 34 | 2.62 | 2026-09-12 | yes |
-| culturacardedeu.com | Agenda | https://culturacardedeu.com/ | `/video/projects/culturacardedeu.webm` | `/images/projects/culturacardedeu.png` | 1280×720 | 6.0 s | 523 KB | vp9 | 32 | 11.16 | 2026-09-12 | yes |
-| culturacardedeu.com | Notícies | https://culturacardedeu.com/noticies | `/video/projects/culturacardedeu-noticies.webm` | `/images/projects/culturacardedeu-noticies.png` | 1280×720 | 6.0 s | 530 KB | vp9 | 36 | 13.14 | 2026-09-12 | yes |
+| esdeveniments.cat | Home | https://esdeveniments.cat/ | `/video/projects/esdeveniments.webm` | `/images/projects/esdeveniments.png` | 1280×720 | 6.0 s | 533 KB | vp9 | 32 | 6.49 | 2026-09-12 | yes |
+| esdeveniments.cat | Events | https://esdeveniments.cat/catalunya | `/video/projects/esdeveniments-agenda.webm` | `/images/projects/esdeveniments-agenda.png` | 1280×720 | 6.0 s | 543 KB | vp9 | 32 | 6.64 | 2026-09-12 | yes |
+| esdeveniments.cat | Weekend | https://esdeveniments.cat/catalunya/cap-de-setmana | `/video/projects/esdeveniments-cap-de-setmana.webm` | `/images/projects/esdeveniments-cap-de-setmana.png` | 1280×720 | 6.0 s | 541 KB | vp9 | 32 | 7.34 | 2026-09-12 | yes |
+| esdeveniments.cat | News | https://esdeveniments.cat/noticies | `/video/projects/esdeveniments-noticies.webm` | `/images/projects/esdeveniments-noticies.png` | 1280×720 | 6.0 s | 516 KB | vp9 | 32 | 12.75 | 2026-09-12 | yes |
+| eltempsavui.cat | Home | https://eltempsavui.cat/ | `/video/projects/eltempsavui.webm` | `/images/projects/eltempsavui.png` | 1280×720 | 6.0 s | 523 KB | vp9 | 32 | 3.72 | 2026-09-12 | yes |
+| eltempsavui.cat | Concepts | https://eltempsavui.cat/conceptes | `/video/projects/eltempsavui-conceptes.webm` | `/images/projects/eltempsavui-conceptes.png` | 1280×720 | 6.0 s | 546 KB | vp9 | 34 | 2.62 | 2026-09-12 | yes |
+| culturacardedeu.com | Events | https://culturacardedeu.com/ | `/video/projects/culturacardedeu.webm` | `/images/projects/culturacardedeu.png` | 1280×720 | 6.0 s | 523 KB | vp9 | 32 | 11.16 | 2026-09-12 | yes |
+| culturacardedeu.com | News | https://culturacardedeu.com/noticies | `/video/projects/culturacardedeu-noticies.webm` | `/images/projects/culturacardedeu-noticies.png` | 1280×720 | 6.0 s | 530 KB | vp9 | 36 | 13.14 | 2026-09-12 | yes |
 | nowcast-cardedeu | Plourà a Cardedeu? | https://nowcast-cardedeu.vercel.app/ | `/video/projects/nowcast-cardedeu.webm` | `/images/projects/nowcast-cardedeu.png` | 1280×720 | 6.0 s | 540 KB | vp9 | 32 | 3.23 | 2026-09-12 | yes |
-| moveflow.app | Beat Your Sedentary Brain | https://moveflow-site.vercel.app/ | `/video/projects/moveflow.webm` | `/images/projects/moveflow.png` | 1280×720 | 6.0 s | 589 KB | vp9 | 34 | 5.18 | 2026-09-12 | yes |
+| MoveFlow | Beat Your Sedentary Brain | https://moveflow-site.vercel.app/ | `/video/projects/moveflow.webm` | `/images/projects/moveflow.png` | 1280×720 | 6.0 s | 589 KB | vp9 | 34 | 5.18 | 2026-09-12 | yes |
 | Breathing Timer | Connect IQ Store | https://apps.garmin.com/apps/59828c15-7638-4e14-b871-47f0ce0c66f0 | `/video/projects/breathing-timer.webm` | `/images/projects/breathing-timer.png` | 1280×720 | 6.0 s | 508 KB | vp9 | 32 | 7.04 | 2026-09-12 | yes |
 
 ## Per-project notes
@@ -93,7 +97,7 @@ a clip below `2` fails the run instead of being written.
   frame is checked and the run fails if a visible `googlesyndication`/`doubleclick` element ever appears.
   The counts printed per clip below come from the run that produced the file.
 
-**Inici** — [https://esdeveniments.cat/](https://esdeveniments.cat/)
+**Home** — [https://esdeveniments.cat/](https://esdeveniments.cat/)
 
 - Recorded `https://www.esdeveniments.cat/` on 2026-09-12 → `/video/projects/esdeveniments.webm` (1280×720, vp9, 6.0 s, 533 KB, two-pass at 737 kbps), poster `/images/projects/esdeveniments.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -101,7 +105,7 @@ a clip below `2` fails the run instead of being written.
 - Motion: 1980 px of wheel-driven scroll over 6 s (target 1980 px of 7036 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
 - Motion energy: **6.49** mean per-frame luma delta over 149 frames (threshold 2, peak 79.542), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
 
-**Agenda** — [https://esdeveniments.cat/catalunya](https://esdeveniments.cat/catalunya)
+**Events** — [https://esdeveniments.cat/catalunya](https://esdeveniments.cat/catalunya)
 
 - Recorded `https://www.esdeveniments.cat/catalunya` on 2026-09-12 → `/video/projects/esdeveniments-agenda.webm` (1280×720, vp9, 6.0 s, 543 KB, two-pass at 737 kbps), poster `/images/projects/esdeveniments-agenda.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -109,7 +113,7 @@ a clip below `2` fails the run instead of being written.
 - Motion: 1980 px of wheel-driven scroll over 6 s (target 1980 px of 7966 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
 - Motion energy: **6.64** mean per-frame luma delta over 149 frames (threshold 2, peak 97.707), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
 
-**Cap de setmana** — [https://esdeveniments.cat/catalunya/cap-de-setmana](https://esdeveniments.cat/catalunya/cap-de-setmana)
+**Weekend** — [https://esdeveniments.cat/catalunya/cap-de-setmana](https://esdeveniments.cat/catalunya/cap-de-setmana)
 
 - Recorded `https://www.esdeveniments.cat/catalunya/cap-de-setmana` on 2026-09-12 → `/video/projects/esdeveniments-cap-de-setmana.webm` (1280×720, vp9, 6.0 s, 541 KB, two-pass at 737 kbps), poster `/images/projects/esdeveniments-cap-de-setmana.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -117,7 +121,7 @@ a clip below `2` fails the run instead of being written.
 - Motion: 1980 px of wheel-driven scroll over 6 s (target 1980 px of 7216 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
 - Motion energy: **7.34** mean per-frame luma delta over 149 frames (threshold 2, peak 93.817), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
 
-**Notícies** — [https://esdeveniments.cat/noticies](https://esdeveniments.cat/noticies)
+**News** — [https://esdeveniments.cat/noticies](https://esdeveniments.cat/noticies)
 
 - Recorded `https://www.esdeveniments.cat/noticies` on 2026-09-12 → `/video/projects/esdeveniments-noticies.webm` (1280×720, vp9, 6.0 s, 516 KB, two-pass at 737 kbps), poster `/images/projects/esdeveniments-noticies.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -129,9 +133,9 @@ a clip below `2` fails the run instead of being written.
 
 - Live URL: https://eltempsavui.cat
 - Local weather forecasts for Catalonia, built with Next.js and TypeScript.
-- Section labels — site nav, 2026-09-12: the homepage nav item is labelled “El Temps Avui” → `/`; the section is named “Portada” on the card to avoid repeating the project title. “Conceptes” → `/conceptes`.
+- Section labels — site nav, 2026-09-12: the homepage nav item is labelled “El Temps Avui” → `/`; the card calls that page “Home” so its nav does not repeat the project title. “Conceptes” → `/conceptes`.
 
-**Portada** — [https://eltempsavui.cat/](https://eltempsavui.cat/)
+**Home** — [https://eltempsavui.cat/](https://eltempsavui.cat/)
 
 - Recorded `https://www.eltempsavui.cat/` on 2026-09-12 → `/video/projects/eltempsavui.webm` (1280×720, vp9, 6.0 s, 523 KB, two-pass at 737 kbps), poster `/images/projects/eltempsavui.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -139,7 +143,7 @@ a clip below `2` fails the run instead of being written.
 - Motion: 1980 px of wheel-driven scroll over 6 s (target 1980 px of 8374 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
 - Motion energy: **3.72** mean per-frame luma delta over 148 frames (threshold 2, peak 37.912), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
 
-**Conceptes** — [https://eltempsavui.cat/conceptes](https://eltempsavui.cat/conceptes)
+**Concepts** — [https://eltempsavui.cat/conceptes](https://eltempsavui.cat/conceptes)
 
 - Recorded `https://www.eltempsavui.cat/conceptes` on 2026-09-12 → `/video/projects/eltempsavui-conceptes.webm` (1280×720, vp9, 6.0 s, 546 KB, crf 34), poster `/images/projects/eltempsavui-conceptes.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -159,7 +163,7 @@ a clip below `2` fails the run instead of being written.
   frame is checked and the run fails if a visible `googlesyndication`/`doubleclick` element ever appears.
   The counts printed per clip below come from the run that produced the file.
 
-**Agenda** — [https://culturacardedeu.com/](https://culturacardedeu.com/)
+**Events** — [https://culturacardedeu.com/](https://culturacardedeu.com/)
 
 - Recorded `https://www.culturacardedeu.com/` on 2026-09-12 → `/video/projects/culturacardedeu.webm` (1280×720, vp9, 6.0 s, 523 KB, two-pass at 737 kbps), poster `/images/projects/culturacardedeu.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -167,7 +171,7 @@ a clip below `2` fails the run instead of being written.
 - Motion: 990 px of wheel-driven scroll over 6 s (target 990 px of 990 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
 - Motion energy: **11.16** mean per-frame luma delta over 148 frames (threshold 2, peak 24.123), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
 
-**Notícies** — [https://culturacardedeu.com/noticies](https://culturacardedeu.com/noticies)
+**News** — [https://culturacardedeu.com/noticies](https://culturacardedeu.com/noticies)
 
 - Recorded `https://www.culturacardedeu.com/noticies` on 2026-09-12 → `/video/projects/culturacardedeu-noticies.webm` (1280×720, vp9, 6.0 s, 530 KB, crf 36), poster `/images/projects/culturacardedeu-noticies.png` (1200×675).
 - Ad assertion: **PASS** — 0 ad element(s) removed, 0 visible googlesyndication/doubleclick element(s) during recording.
@@ -189,10 +193,10 @@ a clip below `2` fails the run instead of being written.
 - Motion: 1980 px of wheel-driven scroll over 6 s (target 1980 px of 2046 px available, 1 inner scroller(s)); pre-record probe moved 810 px.
 - Motion energy: **3.23** mean per-frame luma delta over 149 frames (threshold 2, peak 8.01), measured with ffmpeg `tblend=all_mode=difference,signalstats`.
 
-### moveflow.app
+### MoveFlow
 
 - Live URL: https://moveflow-site.vercel.app
-- macOS menu bar app for movement reminders. Captured from moveflow-site.vercel.app: https://moveflow.app currently serves an unrelated product by OOMI Software. The card link is unchanged.
+- macOS menu bar app for movement reminders. Captured from moveflow-site.vercel.app, which the card also links to: https://moveflow.app serves an unrelated product by OOMI Software, so it is not linked.
 - Section labels — single page; label is the document title, 2026-09-12.
 
 **Beat Your Sedentary Brain** — [https://moveflow-site.vercel.app/](https://moveflow-site.vercel.app/)
@@ -221,5 +225,6 @@ a clip below `2` fails the run instead of being written.
 
 ```sh
 node scripts/capture-previews.mjs --all
-node scripts/capture-previews.mjs --project esdeveniments --section agenda
+node scripts/capture-previews.mjs --project esdeveniments --section events
+node scripts/capture-previews.mjs --manifest-only   # relabel card nav only; re-verifies every asset on disk
 ```

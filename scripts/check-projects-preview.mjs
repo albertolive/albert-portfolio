@@ -20,7 +20,7 @@ const EXPECTED = [
   { title: "eltempsavui.cat", href: "https://eltempsavui.cat" },
   { title: "culturacardedeu.com", href: "https://culturacardedeu.com" },
   { title: "nowcast-cardedeu", href: "https://github.com/albertolive/nowcast-cardedeu" },
-  { title: "moveflow.app", href: "https://moveflow.app" },
+  { title: "MoveFlow", href: "https://moveflow-site.vercel.app" },
   {
     title: "Breathing Timer",
     href: "https://apps.garmin.com/apps/59828c15-7638-4e14-b871-47f0ce0c66f0",

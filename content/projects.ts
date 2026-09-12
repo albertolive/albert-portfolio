@@ -32,25 +32,25 @@ export const projects: Project[] = [
     video: "/video/projects/esdeveniments.webm",
     sections: [
       {
-        label: "Inici",
+        label: "Home",
         href: "https://esdeveniments.cat/",
         video: "/video/projects/esdeveniments.webm",
         image: "/images/projects/esdeveniments.png",
       },
       {
-        label: "Agenda",
+        label: "Events",
         href: "https://esdeveniments.cat/catalunya",
         video: "/video/projects/esdeveniments-agenda.webm",
         image: "/images/projects/esdeveniments-agenda.png",
       },
       {
-        label: "Cap de setmana",
+        label: "Weekend",
         href: "https://esdeveniments.cat/catalunya/cap-de-setmana",
         video: "/video/projects/esdeveniments-cap-de-setmana.webm",
         image: "/images/projects/esdeveniments-cap-de-setmana.png",
       },
       {
-        label: "Notícies",
+        label: "News",
         href: "https://esdeveniments.cat/noticies",
         video: "/video/projects/esdeveniments-noticies.webm",
         image: "/images/projects/esdeveniments-noticies.png",
@@ -69,13 +69,13 @@ export const projects: Project[] = [
     video: "/video/projects/eltempsavui.webm",
     sections: [
       {
-        label: "Portada",
+        label: "Home",
         href: "https://eltempsavui.cat/",
         video: "/video/projects/eltempsavui.webm",
         image: "/images/projects/eltempsavui.png",
       },
       {
-        label: "Conceptes",
+        label: "Concepts",
         href: "https://eltempsavui.cat/conceptes",
         video: "/video/projects/eltempsavui-conceptes.webm",
         image: "/images/projects/eltempsavui-conceptes.png",
@@ -94,13 +94,13 @@ export const projects: Project[] = [
     video: "/video/projects/culturacardedeu.webm",
     sections: [
       {
-        label: "Agenda",
+        label: "Events",
         href: "https://culturacardedeu.com/",
         video: "/video/projects/culturacardedeu.webm",
         image: "/images/projects/culturacardedeu.png",
       },
       {
-        label: "Notícies",
+        label: "News",
         href: "https://culturacardedeu.com/noticies",
         video: "/video/projects/culturacardedeu-noticies.webm",
         image: "/images/projects/culturacardedeu-noticies.png",
@@ -120,11 +120,11 @@ export const projects: Project[] = [
   },
   {
     slug: "moveflow",
-    title: "moveflow.app",
+    title: "MoveFlow",
     description: "macOS menu bar app for movement reminders and sedentary-behavior tracking.",
     year: "2024",
     tech: ["Swift", "macOS"],
-    href: "https://moveflow.app",
+    href: "https://moveflow-site.vercel.app",
     image: "/images/projects/moveflow.png",
     imageAlt: "MoveFlow macOS movement reminder app",
     video: "/video/projects/moveflow.webm",

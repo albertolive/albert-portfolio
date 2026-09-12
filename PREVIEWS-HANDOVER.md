@@ -25,12 +25,17 @@ records the page, ffmpeg transcodes it.
 # one project (all of its sections)
 node scripts/capture-previews.mjs --project esdeveniments
 
-# a single clip
-node scripts/capture-previews.mjs --project esdeveniments --section agenda
-node scripts/capture-previews.mjs --project eltempsavui --section conceptes
+# a single clip — by card label, or by the stem its clip was captured under
+# (`--section agenda` also selects what the card now calls "Events")
+node scripts/capture-previews.mjs --project esdeveniments --section events
+node scripts/capture-previews.mjs --project eltempsavui --section concepts
 
 # everything
 node scripts/capture-previews.mjs --all
+
+# labels only: rewrite PREVIEW-MANIFEST.md from the facts already recorded in it
+# (no browser, no capture) after re-checking every asset on disk
+node scripts/capture-previews.mjs --manifest-only
 ```
 
 Requirements and overrides:
@@ -81,28 +86,37 @@ recorded frame is asserted to contain no visible `googlesyndication` /
 are declined where the site offers it (Google Funding Choices, TrustArc) and
 then removed on the same timer.
 
-Section labels are the sites' own navigation labels (verified live on each
-capture date; see the manifest). If a site renames a section, update the label
-in `scripts/capture-previews.mjs` **and** in `content/projects.ts`, then re-run
-that project.
+The card nav labels are English, because the portfolio UI is English: each one
+names the page its clip previews, and the same string lives in
+`content/projects.ts` and in the `PROJECTS` config. What the *site* calls that
+section is recorded separately in `labelsVerified` (these sites are Catalan) and
+printed in the manifest's `Label verified as` column, so the docs still say
+"Inici → `/`" where that is what the live nav says. A section's clip and poster
+are named after the stem it was captured under (`asset` in the config), never
+after the card label, so relabelling a section cannot rename a file; when only
+labels change, `node scripts/capture-previews.mjs --manifest-only` rewrites
+`PREVIEW-MANIFEST.md` after re-verifying every asset on disk. If a site renames
+or moves a section, update `href` + `labelsVerified` in the config and the
+`href` in `content/projects.ts`, then re-capture that project.
 
 ## Swap or remove one clip without touching the others
 
-Asset names come from the project slug plus the section label; the root page of
-a project owns the unsuffixed pair. `scripts/capture-previews.mjs` is the source
-of truth (`assetNames()`), and `scripts/check-projects-preview.mjs` asserts the
-same paths in the browser.
+Asset names come from the project slug plus the stem the section was captured
+under (`asset` in the config — not the card label); the root page of a project
+owns the unsuffixed pair. `scripts/capture-previews.mjs` is the source of truth
+(`assetNames()`), and `scripts/check-projects-preview.mjs` asserts the same paths
+in the browser.
 
 | Project | Section | Clip | Poster |
 |---|---|---|---|
-| esdeveniments | Inici | `esdeveniments.webm` | `esdeveniments.png` |
-| esdeveniments | Agenda | `esdeveniments-agenda.webm` | `esdeveniments-agenda.png` |
-| esdeveniments | Cap de setmana | `esdeveniments-cap-de-setmana.webm` | `esdeveniments-cap-de-setmana.png` |
-| esdeveniments | Notícies | `esdeveniments-noticies.webm` | `esdeveniments-noticies.png` |
-| eltempsavui | Portada | `eltempsavui.webm` | `eltempsavui.png` |
-| eltempsavui | Conceptes | `eltempsavui-conceptes.webm` | `eltempsavui-conceptes.png` |
-| culturacardedeu | Agenda | `culturacardedeu.webm` | `culturacardedeu.png` |
-| culturacardedeu | Notícies | `culturacardedeu-noticies.webm` | `culturacardedeu-noticies.png` |
+| esdeveniments | Home | `esdeveniments.webm` | `esdeveniments.png` |
+| esdeveniments | Events | `esdeveniments-agenda.webm` | `esdeveniments-agenda.png` |
+| esdeveniments | Weekend | `esdeveniments-cap-de-setmana.webm` | `esdeveniments-cap-de-setmana.png` |
+| esdeveniments | News | `esdeveniments-noticies.webm` | `esdeveniments-noticies.png` |
+| eltempsavui | Home | `eltempsavui.webm` | `eltempsavui.png` |
+| eltempsavui | Concepts | `eltempsavui-conceptes.webm` | `eltempsavui-conceptes.png` |
+| culturacardedeu | Events | `culturacardedeu.webm` | `culturacardedeu.png` |
+| culturacardedeu | News | `culturacardedeu-noticies.webm` | `culturacardedeu-noticies.png` |
 | nowcast-cardedeu | (single clip) | `nowcast-cardedeu.webm` | `nowcast-cardedeu.png` |
 | moveflow | (single clip) | `moveflow.webm` | `moveflow.png` |
 | breathing-timer | (single clip) | `breathing-timer.webm` | `breathing-timer.png` |
@@ -117,8 +131,9 @@ from the assets and would otherwise drift from what is on disk.
 
 **Add or remove a section.** Add/remove the entry in `content/projects.ts` →
 `Project.sections[]` *and* in the `PROJECTS` config of
-`scripts/capture-previews.mjs` (same label order), then run `--all` so the
-manifest is rewritten for every configured section. A card with no `sections`
+`scripts/capture-previews.mjs` (same label order; give a non-root section its
+`asset` stem so the clip name is fixed), then run `--all` so the manifest is
+rewritten for every configured section. A card with no `sections`
 (or with a single one) renders no section nav and behaves exactly like before:
 poster, hover/focus to play.
 
@@ -230,8 +245,8 @@ untouched by this work.
   VP9/WebM support (especially on older iOS) is assumed, not measured.
 - The clips are recordings of live third-party pages: event listings, weather
   data, venue photos and Garmin store chrome are whatever the sites served on
-  the capture date, and they age. Section labels are re-verified on each
-  capture, not continuously.
+  the capture date, and they age. The sites' own section labels are re-verified
+  on each capture, not continuously.
 - Garmin's "ratings" modal did not appear during the recorded session; the
   dismiss sweep ran anyway (logged in the manifest as consent handling). If it
   starts appearing, it is dismissed or removed by the same sweep.
@@ -239,14 +254,15 @@ untouched by this work.
   capture (PASS = zero visible `googlesyndication` / `doubleclick` elements in
   every recorded frame). At the last capture esdeveniments.cat served no ad
   elements at all, so the assertion passes with 0 removals.
-- `moveflow`: the card still links to `https://moveflow.app`, which today serves
-  an unrelated product by OOMI Software; the clip is recorded from
-  `https://moveflow-site.vercel.app`, the real project. If `moveflow.app` is
-  ever fixed or retired, update `live` in the capture config and the card href
-  together.
-- The section named **Portada** on the eltempsavui card is the site's homepage;
-  the site's own nav labels that link "El Temps Avui". The label was chosen so
-  the card nav does not repeat the project title — see the manifest.
+- `moveflow`: the card links to `https://moveflow-site.vercel.app` (the project
+  itself, `200` on 2026-09-12) and the clip is recorded from that same origin.
+  `https://moveflow.app` serves an unrelated product by OOMI Software, so it is
+  neither linked nor captured; the card title that named that domain was changed
+  to **MoveFlow** with the link.
+- The eltempsavui homepage section is labelled **Home** on the card, like the
+  rest of the nav; the site's own nav item that links there is labelled
+  "El Temps Avui". The card label is the one that avoids repeating the project
+  title — see the manifest's `Label verified as` column.
 - Intro/outro of each clip is still while the scroll eases in and out, so a
   looping preview does not jump; frame-exact loop points are not guaranteed.
 - Clips are 1280×720 recordings of a 1440×900 viewport, centre-cropped to 16:9,
@@ -257,9 +273,10 @@ untouched by this work.
   (measured 98 ms including the media pipeline); later hovers are served from
   the HTTP cache in ~0–120 ms. Nothing is prefetched, so a visitor who never
   hovers downloads no video at all.
-- Two clips (eltempsavui Portada/Conceptes, culturacardedeu Agenda) needed the
-  two-pass bitrate-constrained path to stay under 600 KB; their CRF is not the
-  single-pass 32–36 band. Files and dates are in the manifest.
+- Seven clips (all four esdeveniments sections, eltempsavui Home,
+  culturacardedeu Events and the Garmin listing) needed the two-pass
+  bitrate-constrained path to stay under 600 KB; their CRF is not the
+  single-pass 32–36 ladder. Files and dates are in the manifest.
 - Rewinding is requested as `currentTime = 0`; Chromium settles a paused clip
   on its first frame, so the property reads 0.04 s (1/25 s) rather than exactly
   0. The visitor sees the clip restart from its first frame, and
