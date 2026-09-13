@@ -30,13 +30,13 @@ export const about: { segments: AboutSegment[] } = {
       children: [
         {
           kind: "text",
-          text: " who turns ambiguous problems into focused product decisions, aligns customer needs, product direction, and ",
+          text: " who turns ambiguous problems into clear product decisions, brings customer needs, product direction, and ",
         },
         {
           kind: "reveal",
           id: "engineering-teams",
           label: "engineering teams",
-          children: [{ kind: "text", text: " around a clear path to launch" }],
+          children: [{ kind: "text", text: " together to launch" }],
         },
       ],
     },
@@ -57,7 +57,7 @@ export const about: { segments: AboutSegment[] } = {
               kind: "reveal",
               id: "chickens",
               label: "exactly three chickens",
-              children: [{ kind: "text", text: " at home" }],
+              children: [{ kind: "text", text: " for fresh eggs" }],
             },
           ],
         },
