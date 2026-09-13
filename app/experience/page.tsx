@@ -2,31 +2,19 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { education, experience, languages } from "@/content/experience";
 import { site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 import SiteNav from "../_components/site-nav";
 import { ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon } from "../_components/icons";
 import MontsenyScene from "../_components/montseny-scene";
 import JourneyScroller from "./journey-scroller";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Experience",
   description:
     "Albert Olivé Corbella's CV — 12 years across esdeveniments.cat, IOTA Foundation, Consensys (MetaMask), letgo, CornerJob and more.",
-  alternates: { canonical: "/experience" },
-  openGraph: {
-    type: "website",
-    url: "/experience",
-    title: `Experience — ${site.name}`,
-    description: "Albert Olivé Corbella's CV and 12 years of experience building products and leading engineering teams.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} — ${site.shortTitle}` }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `Experience — ${site.name}`,
-    description: "Albert Olivé Corbella's CV and 12 years of experience building products and leading engineering teams.",
-    images: ["/opengraph-image"],
-  },
-};
+  path: "/experience",
+});
 
 export default function ExperiencePage() {
   return (

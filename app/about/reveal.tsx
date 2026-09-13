@@ -1,15 +1,21 @@
 "use client";
 
-import { useState } from "react";
 import type { AboutSegment } from "@/content/about";
-import { onReveal } from "./counter-context";
+import { useReveal } from "./reveal-state";
 import styles from "./page.module.css";
 
 // Ped.ro .reveal-trigger / .reveal-content, recursive: a pill's hidden
 // content is the sentence continuation and can contain more pills.
 // Deviation (D5): closed content is inert (not tabbable).
-export default function Reveal({ reveal }: { reveal: Extract<AboutSegment, { kind: "reveal" }> }) {
-  const [open, setOpen] = useState(false);
+export default function Reveal({
+  reveal,
+  parentId,
+}: {
+  reveal: Extract<AboutSegment, { kind: "reveal" }>;
+  parentId: string | null;
+}) {
+  const { open, toggle } = useReveal(reveal.id, parentId);
+  const contentId = `about-reveal-${reveal.id}`;
 
   return (
     <>
@@ -17,14 +23,13 @@ export default function Reveal({ reveal }: { reveal: Extract<AboutSegment, { kin
         type="button"
         className={open ? `${styles.revealTrigger} ${styles.open}` : styles.revealTrigger}
         aria-expanded={open}
-        onClick={() => {
-          setOpen((v) => !v);
-          onReveal(!open);
-        }}
+        aria-controls={contentId}
+        onClick={toggle}
       >
         {reveal.label}
       </button>
       <span
+        id={contentId}
         className={open ? `${styles.revealContent} ${styles.open}` : styles.revealContent}
         inert={!open}
       >
@@ -36,7 +41,7 @@ export default function Reveal({ reveal }: { reveal: Extract<AboutSegment, { kin
               {seg.text}
             </a>
           ) : (
-            <Reveal key={seg.id} reveal={seg} />
+            <Reveal key={seg.id} reveal={seg} parentId={reveal.id} />
           ),
         )}
       </span>

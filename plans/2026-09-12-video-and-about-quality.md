@@ -120,6 +120,85 @@ Treat the homepage video as meaningful media. Provide a text equivalent or nearb
 8. Test Chrome, Safari, Firefox, iOS Safari, Android Chrome, reduced motion, slow 3G, and autoplay blocking.
 9. Record file size, duration, dimensions, codec, bitrate, and the reason for each encoding choice in `reference/measurements`.
 
+### Replacing the current videos
+
+- About: put your encoded files under `public/video/` and the poster under
+  `public/images/`. Update `aboutVideo.sources` and `aboutVideo.poster` in
+  `lib/video.ts`. Order sources by preference and give each its actual MIME
+  type. The poster is painted independently of playback. The video has no
+  source until JavaScript checks reduced motion. Playback rejection or media
+  failure keeps the poster; changing to reduced motion unloads the video.
+- Homepage: upload your own video to your Cloudflare Stream account and
+  wait for processing. Replace `homeStream.embedUrl` in `lib/video.ts` with
+  your embed URL and its encoded thumbnail URL. Preserve `loop=true`,
+  `autoplay=true`, `muted=true`, and `controls=false`. Update the title and
+  text equivalent in `app/page.tsx` to describe the actual footage.
+- No pause control is added. This remains an intentional accessibility
+  limitation for automatically moving content, including decorative media.
+- Run the production browser check after replacement. Real Safari/device
+  support and the quality of new footage need separate checks; Chromium
+  tests do not establish codec coverage or adaptive streaming efficiency.
+
 ## Approval gate
 
 Implementation starts after this plan is approved. The first implementation slice is the measured video contract and `/about` semantics; streaming changes wait for the homepage measurements.
+
+## Implementation notes (2026-09-13)
+
+Done: shared typed video config (`lib/video.ts`); about native video with
+poster-first `data-ready` fade on loadeddata/canplay, error fallback to
+poster, JS reduced-motion guard (poster visible, no autoplay); `100dvh`
+video sizing; homepage Cloudflare iframe preserved behind
+`app/_components/home-stream.tsx` with a visually-hidden text equivalent and
+the documented no-pause decision; accessible `h1` on `/about` with no visual
+change; module-global reveal bus removed in favor of page-owned
+`RevealProvider` with a derived counter, parent-close cascade, and stable
+`aria-controls` ids; metadata deduplicated via `lib/metadata.ts` (experience
+OG drift fixed); fonts unchanged (`next/font` self-hosted, per docs).
+`npm run lint` and `npm run build` (Next.js 16.3.4) pass; rendered HTML
+verified from the built app (one `h1`, canonical, OG/Twitter, robots,
+sitemap per route).
+
+Deviations: no MP4 fallback binary shipped — the `<video>` renders one
+`<source>` per configured source, so adding an MP4 to the config needs no
+code change; `public/video/about.webm` is 630,799 B. The five reference
+viewports are 1440x900, 1280x800, 768x1024, 390x844, and 320x740, recorded
+in the reference notes and screenshot filenames. The initial implementation
+did not capture them, so visual parity was not verified. Interactive checks
+still needed a browser session:
+open/close/nested/parent-close counter, keyboard/focus order, reduced
+motion, autoplay blocking, slow network, and the duplicate-download network
+log.
+
+Browser-verified 2026-09-13 (production build, real Chrome):
+open → R 1/10, nested open → R 2/10, parent close → R 0/10 with zero
+open pills, reopen parent → R 1/10 (child stays closed); keyboard
+focus + Enter toggles; about video `data-ready="true"`, playing 640x360,
+exactly one `about.webm` request (631,099 B, no duplicates); homepage
+iframe attrs, text equivalent, and badge intact; projects (6 cards,
+`preload="none"`) and experience (7 companies) render with clean consoles.
+Note: `next dev` (Turbopack) in this environment did not hydrate client
+components, so verification ran against `next start`; still pending:
+reduced-motion, autoplay-blocked, slow-network, and multi-viewport passes.
+
+## Review fixes and verification (2026-09-13)
+
+The metadata helper now supplies social images explicitly. Next.js replaces
+nested metadata objects rather than inheriting their missing properties.
+The poster is independent of video opacity. Reduced motion is checked before
+loading sources and observed while the page is open. Only playback reveals
+the video; failed or blocked playback keeps the poster.
+
+Readable About prose and open reveals have no blur, opacity animation, or
+grain over them. Closed reveals retain their inline blurred placeholders.
+The page has a dark fallback behind the fixed media for long-page rendering.
+
+`node scripts/check-about.mjs` verifies social images on all four routes,
+all five reference sizes, text filters and opacity after 4.5 seconds, nested
+counter transitions, initial and live reduced motion, and poster visibility
+with blocked playback, failed/slow media, and JavaScript disabled. Screenshots
+are written to `/tmp/about-fixed-<width>.png`. Build and lint pass.
+
+These checks establish Chromium behavior, not exact Pedro pixel parity,
+real-device Safari compatibility, or CPU/battery improvements. Those claims
+still require separate measurements. No deployment is performed here.

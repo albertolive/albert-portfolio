@@ -5,6 +5,7 @@
 .page {
   min-height: 100dvh;
   position: relative;
+  background: var(--ink);
 }
 
 .videoWrap {
@@ -13,6 +14,8 @@
   z-index: 0;
   overflow: hidden;
   background: #111;
+  background-size: cover;
+  background-position: center;
 }
 
 /* Dark scrim over the video (ped.ro #111 bg, no blend mode). The old
@@ -33,11 +36,10 @@
   text-align: center;
 }
 
-/* Film grain — fixed overlay, above content, no pointer events */
 .grain {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 0;
   opacity: 0.2;
   pointer-events: none;
   filter: contrast(60%) brightness(100%);
@@ -49,14 +51,26 @@
   position: absolute;
   inset: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   object-fit: cover;
-  opacity: 0.75;
+  opacity: 0;
   transition: opacity 666ms ease;
+}
 
-  @starting-style {
-    opacity: 0;
-  }
+.videoBg[data-ready="true"] {
+  opacity: 1;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Counter — fixed top-right, serif italic */
@@ -71,9 +85,7 @@
   font-size: var(--type-small);
   line-height: var(--leading-small);
   color: #eee;
-  filter: blur(0.25px);
-  animation: aboutShow 0.6s ease both;
-  animation-delay: calc(0.16s * 5);
+  user-select: none;
 }
 
 @media (hover: none) {
@@ -99,8 +111,6 @@
   font-size: 28px;
   line-height: 36px;
   letter-spacing: -0.01em;
-  filter: blur(0.25px);
-  animation: aboutShow 0.6s ease both;
 }
 
 .mail {
@@ -113,11 +123,6 @@
 
 .mail:hover {
   color: var(--accent-about);
-}
-
-.fade {
-  animation: aboutShow 0.6s ease both;
-  animation-delay: calc(0.16s * var(--delay, 0));
 }
 
 /* Reveal pills — inline, border currentColor, radius 9999px */
@@ -179,25 +184,8 @@
 
 .revealContent.open {
   display: inline;
-  animation: aboutReveal 0.6s ease both;
-}
-
-@keyframes aboutShow {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes aboutReveal {
-  from {
-    filter: blur(0.1em);
-  }
-  to {
-    filter: blur(0);
-  }
+  filter: none;
+  opacity: 1;
 }
 
 @media (min-width: 768px) {
@@ -217,14 +205,4 @@
     transition: none;
   }
 
-  .text,
-  .fade,
-  .counter {
-    animation: none;
-    filter: none;
-  }
-
-  .revealContent.open {
-    animation: none;
-  }
 }

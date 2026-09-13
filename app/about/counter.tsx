@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { subscribe } from "./counter-context";
+import { useRevealOpenCount } from "./reveal-state";
 import styles from "./page.module.css";
 
 // R counter — ped.ro .counter: fixed top-right, serif italic, "R 0 / N".
 // Deviations (D5): aria-live polite; hidden on (hover:none) via CSS.
+// The open count is derived from the page-owned reveal state, so unmounts
+// and nested reveals cannot desynchronize it.
 export default function Counter({ total }: { total: number }) {
-  const [open, setOpen] = useState(0);
-
-  useEffect(() => subscribe((opened) => {
-    setOpen((n) => (opened ? n + 1 : Math.max(0, n - 1)));
-  }), []);
+  const open = useRevealOpenCount();
 
   return (
     <p className={styles.counter} aria-live="polite">

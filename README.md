@@ -24,6 +24,12 @@ npm run build
 The repository has no `npm test` script. `check:projects` verifies the project
 data, GitHub contribution parsing, and Matter.js collision behavior.
 
+For About and metadata regressions, start a production build on port 3100
+and run `node scripts/check-about.mjs`. This checks five viewports, clear
+prose after 4.5 seconds, nested reveals, social images, motion preference
+changes, and blocked, failed, slow, and JavaScript-disabled video fallbacks.
+Screenshots are saved to `/tmp/about-fixed-<width>.png`.
+
 ## Project structure
 
 - `app/` contains the App Router pages and interactive components.

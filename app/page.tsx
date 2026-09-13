@@ -1,29 +1,18 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 import Clock from "./_components/clock";
+import HomeStream from "./_components/home-stream";
 import SiteNav from "./_components/site-nav";
 import styles from "./page.module.css";
 
 // Home — jrands.com identity (reference/measurements/jrands.md) with the
 // shared toryn navbar (user decision 2026-09-08: navbar on all pages,
 // bottom info bar kept on home). Server component; clock is a client island.
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    url: "/",
-    title: `${site.name} — ${site.shortTitle}`,
-    description: site.description,
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} — ${site.shortTitle}` }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${site.name} — ${site.shortTitle}`,
-    description: site.description,
-    images: ["/opengraph-image"],
-  },
-};
+export const metadata = pageMetadata({
+  description: site.description,
+  path: "/",
+});
 
 export default function HomePage() {
   const year = new Date().getFullYear();
@@ -35,15 +24,11 @@ export default function HomePage() {
       <main className={styles.frameWrap}>
         <h1 className={styles.visuallyHidden}>Albert Olivé Corbella, Senior AI Product Engineer in Cardedeu</h1>
         <p className={styles.visuallyHidden}>Building AI-native products from idea to production.</p>
+        <p className={styles.visuallyHidden}>
+          Full-bleed looping video of the Montseny landscape behind the page content.
+        </p>
         <div className={styles.frame}>
-          <iframe
-            className={styles.video}
-            src="https://customer-r2fmo0h2bms2itla.cloudflarestream.com/6c867869f199be1a7e96b65435fd6293/iframe?loop=true&autoplay=true&muted=true&poster=https%3A%2F%2Fcustomer-r2fmo0h2bms2itla.cloudflarestream.com%2F6c867869f199be1a7e96b65435fd6293%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D%26height%3D600&controls=false"
-            title="Montseny landscape background"
-            aria-hidden="true"
-            tabIndex={-1}
-            allow="autoplay; encrypted-media"
-          />
+          <HomeStream />
         </div>
 
         <Link

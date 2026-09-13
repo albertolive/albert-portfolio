@@ -82,3 +82,26 @@ Single page, no router. #page is height:100vh-like (body 100dvh overflow hidden)
 - Whether navigation vid pauses when modal open — not observed (video keeps playing behind modal — no pause on modal open observed).
 - Sounds played on open/close (UIClick, Workopen mp3s fetched on load).
 
+## Stream network behavior (measured 2026-09-13 via manifest fetch)
+
+Same video ID our homepage embeds
+(`6c867869f199be1a7e96b65435fd6293`).
+
+- Duration: 5 min 18.3 s (`mediaPresentationDuration="PT5M18.3S"`).
+- Renditions (HLS `video.m3u8`): 426x240 (~0.43 Mbps avg), 640x360
+  (~0.87 Mbps), 852x480 (~1.6 Mbps), 1280x720 (~3.7 Mbps), 1920x1080
+  (~7.4 Mbps); H.264 + AAC, 29.97 fps.
+- Segmentation: 80 video segments + 80 audio segments, ~4.004 s each
+  (`#EXTINF:4.00400`, `TARGETDURATION:5`). Every segment is one HTTP
+  request; the audio track downloads even though the player is muted.
+- Measured segment weight: one 480p segment = 637,335 B, one audio
+  segment = 65,494 B. Full 480p playout ≈ 51 MB video + 5 MB audio;
+  1 minute of viewing at 480p ≈ 30 requests and ≈ 10 MB.
+- With `loop=true` the player never stops: a new segment request lands
+  roughly every 4 s forever, plus init + segment refetches on every ABR
+  rendition switch (ramp 240→1080 observed on load). This is why the
+  homepage video dominates the network log with constantly appearing
+  entries — expected for HLS/DASH, not a bug.
+- Top-frame `performance` entries only show `embed/sdk.latest.js`; all
+  segment traffic lives inside the cross-origin Stream iframe.
+

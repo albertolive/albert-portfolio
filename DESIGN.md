@@ -125,7 +125,7 @@ technology.
 
 ## Page: `/about` (pedro identity)
 
-- bg `#111`, white text, SVG grain overlay fixed inset-0 opacity .2
+- bg `#111`, white text, SVG grain behind the text fixed inset-0 opacity .2
   (`feTurbulence baseFrequency .8 numOctaves 4`, saturate 0).
 - Prose: 35px/42px desktop, 28px/36px <768, letter-spacing -.01em, weight 500.
 - Reveal pills: inline-block, border 1px currentColor, radius 9999px,
@@ -135,15 +135,18 @@ technology.
   further pills (ped.ro's real shape — `content/about.ts` is a segment
   tree with 4 root hints and 10 total reveals). GitHub, LinkedIn, and email
   remain ordinary prose links.
-- Reveal content: closed = native `hidden` + `inert` with zero layout space;
-  open = inline with a 600ms reveal. Closing a parent does not close nested
-  children.
+- Reveal content: closed = inline, blurred 6px, opacity .8, and `inert`;
+  open = inline, unfiltered, full opacity. Closing a parent closes nested
+  children. Readable prose has no blur or delayed opacity animation.
 - Counter: fixed top-right 16px, serif italic 16px, `R 0 / 10`, aria-live
   polite, hidden on `(hover: none)`.
 - Navbar: shared toryn `SiteNav` (light tone).
 - Video: decorative VP9 WebM (`public/video/about.webm`) with a WebP poster
   (`public/images/about-poster.webp`) and `preload="metadata"`. It is muted,
-  loops, plays inline, and is hidden from assistive technology.
+  loops, plays inline, and is hidden from assistive technology. The wrapper
+  paints the poster independently. Sources attach only after checking motion
+  preference. Reduced motion unloads video, including when changed live.
+  Blocked playback or failed loading leaves the poster visible.
 
 ## Metadata and media
 
@@ -162,7 +165,6 @@ technology.
 |---|---|---|
 | link color / border / arrow | 150–200ms ease | projects |
 | panel/modal open | 150–300ms ease-out | home |
-| reveal unblur / show fade | 600ms | about |
 | video opacity fade | 666ms | home/about |
 
 `prefers-reduced-motion: reduce` → replace the falling skills simulation with

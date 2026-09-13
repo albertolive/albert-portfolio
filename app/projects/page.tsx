@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { projects } from "@/content/projects";
 import { site } from "@/content/site";
+import { pageMetadata } from "@/lib/metadata";
 import SiteNav from "../_components/site-nav";
 import { ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon } from "../_components/icons";
 import MontsenyScene from "../_components/montseny-scene";
@@ -9,24 +10,11 @@ import ProjectPreview from "./_components/project-preview";
 import SkillsPlayground from "./_components/skills-playground";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Projects",
   description: "Selected AI-native products, local platforms, weather tools, and open-source work built by Albert Olivé Corbella.",
-  alternates: { canonical: "/projects" },
-  openGraph: {
-    type: "website",
-    url: "/projects",
-    title: `Projects — ${site.name}`,
-    description: "Selected AI-native products, local platforms, weather tools, and open-source work built by Albert Olivé Corbella.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} — ${site.shortTitle}` }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `Projects — ${site.name}`,
-    description: "Selected AI-native products, local platforms, weather tools, and open-source work built by Albert Olivé Corbella.",
-    images: ["/opengraph-image"],
-  },
-};
+  path: "/projects",
+});
 
 export default function ProjectsPage() {
   return (
