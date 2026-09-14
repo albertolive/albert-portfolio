@@ -43,3 +43,14 @@ export const homeStream = {
     "https://customer-r2fmo0h2bms2itla.cloudflarestream.com/6c867869f199be1a7e96b65435fd6293/iframe?loop=true&autoplay=true&muted=true&poster=https%3A%2F%2Fcustomer-r2fmo0h2bms2itla.cloudflarestream.com%2F6c867869f199be1a7e96b65435fd6293%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D%26height%3D600&controls=false",
   title: "Montseny landscape background",
 } as const;
+
+// Homepage via R2 (always-free jrands clone): adaptive HLS encoded locally
+// (see ~/Downloads/hero-hls/), uploaded to R2 bucket hero-video, served
+// through workers/video-proxy (free workers.dev edge cache; r2.dev is
+// dev-only/uncached). <HomeR2Video/> in app/page.tsx.
+export const homeR2 = {
+  role: "meaningful" as VideoRole,
+  src: "https://hero-video-proxy.albertolivecorbella.workers.dev/hls/master.m3u8",
+  poster: "/images/hero-poster.jpg",
+  title: "Homepage background video",
+} as const;

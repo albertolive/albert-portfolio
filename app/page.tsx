@@ -2,7 +2,7 @@ import Link from "next/link";
 import { site } from "@/content/site";
 import { pageMetadata } from "@/lib/metadata";
 import Clock from "./_components/clock";
-import HomeStream from "./_components/home-stream";
+import HomeR2Video from "./_components/home-r2-video";
 import SiteNav from "./_components/site-nav";
 import styles from "./page.module.css";
 
@@ -28,7 +28,7 @@ export default function HomePage() {
           Full-bleed looping video of the Montseny landscape behind the page content.
         </p>
         <div className={styles.frame}>
-          <HomeStream />
+          <HomeR2Video />
         </div>
 
         <Link

@@ -1,0 +1,9 @@
+name = "hero-video-proxy"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# Personal account (Albertolivecorbella@gmail.com's Account), not Confetti Labs.
+account_id = "9417d367eea41db07beaf77b0ac27d86"
+
+# workers.dev route is on by default — free, no custom domain needed.
+workers_dev = true
