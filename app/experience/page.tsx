@@ -4,7 +4,11 @@ import { education, experience, languages } from "@/content/experience";
 import { site } from "@/content/site";
 import { pageMetadata } from "@/lib/metadata";
 import SiteNav from "../_components/site-nav";
-import { ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon } from "../_components/icons";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  ArrowUpRightIcon,
+} from "../_components/icons";
 import MontsenyScene from "../_components/montseny-scene";
 import JourneyScroller from "./journey-scroller";
 import styles from "./page.module.css";
@@ -26,8 +30,8 @@ export default function ExperiencePage() {
           <p className={styles.eyebrow}>Work Experience</p>
           <h1>The Journey So Far</h1>
           <p className={styles.lede}>
-            From seventh employee to engineering lead, solution architect and founder —
-            building products, teams and the systems between them.
+            From seventh employee to engineering lead, solution architect and
+            founder — building products, teams and the systems between them.
           </p>
           <a className={styles.cvLink} href="/cv.pdf" download>
             Download the CV <ArrowDownIcon />
@@ -42,20 +46,41 @@ export default function ExperiencePage() {
                 <div className={styles.connector} aria-hidden="true">
                   <span />
                 </div>
-                  <article className={styles.companyCard}>
-                    <div className={styles.companyHeader}>
-                      <Image className={styles.companyLogo} src={company.logo} alt="" width={56} height={56} />
-                      <div>
-                        <h2 className={styles.companyName}>
-                          {company.href ? <a href={company.href} target="_blank" rel="noopener noreferrer">{company.name}</a> : company.name}
-                        </h2>
-                        <p className={styles.companyRole}>{company.role}</p>
-                      </div>
+                <article className={styles.companyCard}>
+                  <div className={styles.companyHeader}>
+                    <Image
+                      className={styles.companyLogo}
+                      src={company.logo}
+                      alt=""
+                      width={56}
+                      height={56}
+                    />
+                    <div>
+                      <h2 className={styles.companyName}>
+                        {company.href ? (
+                          <a
+                            href={company.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {company.name}
+                          </a>
+                        ) : (
+                          company.name
+                        )}
+                      </h2>
+                      <p className={styles.companyRole}>{company.role}</p>
                     </div>
-                    <p className={styles.roleSummary}>{company.summary}</p>
-                    <ul className={styles.techList} aria-label="Technologies and skills">
-                      {company.tags.map((tag) => <li key={tag}>{tag}</li>)}
-                    </ul>
+                  </div>
+                  <p className={styles.roleSummary}>{company.summary}</p>
+                  <ul
+                    className={styles.techList}
+                    aria-label="Technologies and skills"
+                  >
+                    {company.tags.map((tag) => (
+                      <li key={tag}>{tag}</li>
+                    ))}
+                  </ul>
                 </article>
               </li>
             ))}
@@ -64,7 +89,9 @@ export default function ExperiencePage() {
 
         <section className={styles.details} aria-labelledby="education-title">
           <div>
-            <h2 id="education-title" className={styles.detailsTitle}>Education</h2>
+            <h2 id="education-title" className={styles.detailsTitle}>
+              Education
+            </h2>
             <ul className={styles.educationList}>
               {education.map((item) => (
                 <li key={item.school + item.period}>
@@ -78,7 +105,9 @@ export default function ExperiencePage() {
           <div>
             <h2 className={styles.detailsTitle}>Languages</h2>
             <ul className={styles.languageList}>
-              {languages.map((language) => <li key={language}>{language}</li>)}
+              {languages.map((language) => (
+                <li key={language}>{language}</li>
+              ))}
             </ul>
           </div>
         </section>
@@ -86,10 +115,16 @@ export default function ExperiencePage() {
       <div className={styles.ending}>
         <MontsenyScene />
         <footer className={styles.footer}>
-          <span>Albert Olivé · {site.location}</span>
-          <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub <ArrowUpRightIcon /></a>
-          <a href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <ArrowUpRightIcon /></a>
-          <a href="#top">Back to top <ArrowUpIcon /></a>
+          <span>Albert Olivé Corbella · {site.location}</span>
+          <a href={site.github} target="_blank" rel="noopener noreferrer">
+            GitHub <ArrowUpRightIcon />
+          </a>
+          <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
+            LinkedIn <ArrowUpRightIcon />
+          </a>
+          <a href="#top">
+            Back to top <ArrowUpIcon />
+          </a>
         </footer>
       </div>
     </div>

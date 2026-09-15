@@ -1,4 +1,4 @@
-# Albert Olivé portfolio
+# Albert Olivé Corbella portfolio
 
 Personal portfolio built with Next.js 16 and the App Router. The site has four
 static routes: `/`, `/about`, `/experience`, and `/projects`.
@@ -57,44 +57,73 @@ R2 stores the files; it does not encode adaptive variants. Prepare the new
 video and its matching poster locally:
 
 ```sh
-node scripts/prepare-home-video.mjs --input ~/Downloads/hero.mp4 --out /tmp/portfolio-hls
+node scripts/prepare-home-video.mjs --input ~/Downloads/hero.mp4 --out /tmp/portfolio-hls \
+  --start 0.16 --end 305
+```
+
+`--start` and `--end` are absolute offsets in the source and are re-encoded
+frame-accurately, so a trim is part of the release identity. Real example:
+
+```sh
+node scripts/prepare-home-video.mjs \
+  --input ~/Downloads/E2114B42-94F5-4482-91E9-33CB0E81DE5C.MP4 \
+  --out /tmp/portfolio-hls --start 0.16 --end 305
 ```
 
 The command prints a release directory and the future `src` and `poster`
 URLs. It does not upload, deploy, or change `lib/video.ts`. The release ID
-includes the source bytes, preparation script, encoding settings, and FFmpeg version. Completed
-releases are verified and reused. A failed encode never publishes a partial
-directory.
+includes the source bytes, trim, preparation script, encoding settings, and
+FFmpeg version. Completed releases are verified and reused. A failed encode
+never publishes a partial directory.
 
 The encoder creates up to three H.264 renditions with aligned four-second
 segments. It measures actual segment bitrates and omits lower-resolution
 variants that save less than 20% bandwidth. It preserves aspect ratio and
-avoids upscaling. The poster comes from the same input's first frame.
+avoids upscaling. The poster comes from the first frame of the trimmed clip.
 
 After reviewing the output and approving publication:
 
 1. Upload to a **new** `hls/<release-id>/` prefix in the `hero-video` bucket.
-   Upload segments and the poster first, then variant playlists, then the
-   master playlist. Preserve the directory structure. Use `video/mp2t` for
+   Pin the account, because the default OAuth account may not be the one that
+   owns the bucket:
+   `CLOUDFLARE_ACCOUNT_ID=9417d367eea41db07beaf77b0ac27d86 npx wrangler@4.131.2 r2 object put hero-video/hls/RELEASE_ID/480/seg0.ts --file /tmp/portfolio-hls/RELEASE_ID/480/seg0.ts --content-type video/mp2t --remote`.
+   Upload segments first, then variant playlists, then the master playlist,
+   then the poster. Preserve the directory structure. Use `video/mp2t` for
    `.ts`, `application/vnd.apple.mpegurl` for `.m3u8`, and `image/jpeg` for
-   the poster. For example:
-   `npx wrangler@4.131.2 r2 object put hero-video/hls/RELEASE_ID/480/seg0.ts --file /tmp/portfolio-hls/RELEASE_ID/480/seg0.ts --content-type video/mp2t --remote`.
+   the poster. For a 300-object release, `PUT` the files through the
+   Cloudflare REST API instead of one wrangler process per object:
+   `curl -X PUT "https://api.cloudflare.com/client/v4/accounts/ACCOUNT/r2/buckets/hero-video/objects/hls/RELEASE_ID/480/seg0.ts" -H "Authorization: Bearer TOKEN" -H "Content-Type: video/mp2t" --data-binary @/tmp/portfolio-hls/RELEASE_ID/480/seg0.ts`.
 2. Verify the master and its referenced files through the Worker URL.
-3. Set **both** `homeR2.src` and `homeR2.poster` in `lib/video.ts` to the printed
-   URLs. Run the build and browser checks before deploying the site.
+3. Set `homeR2.src` in `lib/video.ts` to the printed `src` URL, and regenerate
+   the local poster from the same trimmed first frame, so the frame paints
+   before any stream request:
+   `ffmpeg -ss 0.16 -i SOURCE -frames:v 1 -vf "scale=w='min(1920,iw)':h='min(1080,ih)':force_original_aspect_ratio=decrease" -q:v 5 public/images/hero-poster.jpg`.
 4. Keep the previous release for rollback. Never overwrite a published
    release, and do not rely on a query string to invalidate cached segments.
 
-The current legacy `/hls/master.m3u8` remains configured until a replacement
-is uploaded. Its published 480p/720p/1080p variants have nearly equal bitrates;
-player changes cannot repair those existing encodings. HLS can still reduce
-resolution on a slow connection. Locking 1080p would exchange softness for
-buffering, not fix bandwidth.
+### Current home release
+
+The previous `/hls/master.m3u8` release was retired on 2026-09-15. All three of
+its variants averaged ~1.5 Mbps, so no player could tell 1080p from 480p and
+adaptive switching read as a quality drop.
+
+The replacement source is 4K24 handheld footage trimmed from 0.16s to 305s.
+Measured over a 12-second motion segment at 1080p, crf 19: SSIM 0.913 with a
+5 Mbps peak cap, 0.923 at 6 Mbps, and 0.938 at 8.5 Mbps. The shipped 1080p rung
+peaks at 6 Mbps, which keeps motion clean at roughly YouTube-1080p bandwidth.
+The hero is pinned to the covering rendition, so that cost is paid once per
+browser: versioned segments are immutable for a year, and a looping hero is
+served from the browser cache after the first pass.
 
 The home player uses native HLS when supported and imports `hls.js` otherwise.
-It caps quality using both cover dimensions and device pixels, pauses when
-hidden, unloads for reduced motion, and offers an explicit play/pause control.
-Failures retain the poster.
+The platform player (Safari, and Chrome on macOS) receives the one variant
+playlist that covers the frame, so it cannot switch renditions. The `hls.js`
+path starts on the rendition that covers the frame and pins the ladder there,
+so quality cannot change mid-loop. It never unloads for reduced motion, pauses
+while the document is hidden, retries a refused `play()` on the next gesture or
+tab focus, and keeps the poster only after a fatal HLS error. `HERO_FLOOR_STEPS`
+lets `hls.js` step one rung down instead of pinning; the native path always
+plays the single variant it was given.
 
 ### Validate and deploy the video Worker
 

@@ -120,3 +120,37 @@ Montseny interaction. The shared nav is a server component.
   competing page heading.
 - The About MP4 was replaced by a smaller VP9 WebM and WebP poster. The shared
   closing scene uses the snow Montseny panorama and remains lazily loaded.
+
+## D9 — Home hero is a pinned, always-playing live surface (2026-09-15)
+
+- Albert's requirement: the hero must autoplay on every device and read like a
+  television feed, so quality must not change while it plays.
+- The retired `/hls/master.m3u8` release encoded 1080p, 720p, and 480p at
+  ~1.5 Mbps each. Adaptive bitrate could not distinguish them, which is what
+  appeared as "the video changes quality and looks pixelated".
+- The replacement release trims 4K24 footage to 0.16s→305s and encodes 1080p at
+  crf 19 with a 6 Mbps peak, 720p at crf 23/2.4 Mbps, and 480p at crf 27/0.8
+  Mbps. A 12-second motion segment measured SSIM 0.913/0.923/0.938 at 5/6/8.5
+  Mbps, so the peak cap, not the crf, decides motion quality.
+- Playback is pinned to the rendition that covers the frame. The platform
+  player (Safari, and Chrome on macOS) receives the one variant playlist that
+  covers it, so it has no ladder to climb. The `hls.js` path pins the ladder
+  instead: `autoLevelCapping` caps it, `minAutoBitrate` floors it, and
+  `startLevel` fixes the first fragment. `HERO_FLOOR_STEPS = 0` in
+  `lib/video.ts` is the policy switch that allows one rung of degradation
+  instead.
+- The play/pause control was already removed by Albert; it is now gone from the
+  CSS as well. The hero therefore has no WCAG 2.2.2 pause affordance.
+  `HERO_HONORS_REDUCED_MOTION = true` in `lib/video.ts` restores the
+  poster-only fallback for visitors who ask for reduced motion.
+- Reduced motion no longer unloads the hero, because that silently turned the
+  hero into a poster on devices where the preference is enabled. Measured
+  evidence (2026-09-15) showed the platform player was the one changing
+  quality: it ran its own adaptive ramping from 480p before hls.js could pin
+  anything, even though Chromium on macOS also plays HLS natively. A refused
+  `play()` (Low Power Mode, battery savers, in-app browsers) is retried on a
+  delay ladder and again on the first gesture, `visibilitychange`, or
+  `pageshow`; only a fatal HLS error keeps the poster.
+- Safari's native HLS player still chooses its own rendition. The accurate
+  bitrate separation in the master playlist is the only lever there.
+

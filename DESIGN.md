@@ -63,12 +63,22 @@ Layout: a `100dvh` flex column on desktop; mobile can scroll. The frame has
 the frame with `object-fit: cover`, muted looping playback, `playsInline`, and
 a matching poster fallback. The badge sits 72px from the frame top, or 56px
 on mobile. The dark-on-white navbar is in normal flow above the video.
-The bottom bar sits below the frame. A 44px-minimum play/pause button sits
-inside the frame at bottom-right and is absent with reduced motion.
+The bottom bar sits below the frame. There is no play/pause control: the hero
+is an always-on "live" surface (2026-09-15) that reads as a television feed.
 
 HLS uses R2 through the video Worker, with native HLS preferred over a dynamic
-`hls.js` import. Quality capping accounts for both cover dimensions and device
-pixels. A hidden document pauses playback; reduced motion unloads the source.
+`hls.js` import. Playback starts on the rendition that covers the frame
+(`coverLevel` accounts for both cover dimensions and device pixels) and is
+pinned there. The platform player (Safari, and Chrome on macOS, which also
+plays HLS natively) receives the one variant playlist that covers the frame,
+so it has no ladder to climb. The `hls.js` path pins the ladder instead:
+`minAutoBitrate` floors it, `autoLevelCapping` caps it, and `startLevel` fixes
+the first fragment. `HERO_FLOOR_STEPS` in `lib/video.ts` is the policy switch that allows one rung
+of degradation instead. Reduced motion, a hidden document, and a refused
+`play()` all still keep the stream loaded; playback resumes on
+`visibilitychange`, `pageshow`, or the first gesture, and only a fatal HLS
+error falls back to the poster. `HERO_HONORS_REDUCED_MOTION` in `lib/video.ts`
+restores the poster for reduced-motion visitors.
 Video replacement and versioned caching are documented in `README.md`.
 
 The document keeps the visual treatment unchanged while providing one

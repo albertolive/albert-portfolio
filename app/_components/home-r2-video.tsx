@@ -2,14 +2,33 @@
 
 import { useEffect, useRef, useState } from "react";
 import type Hls from "hls.js";
-import { coverLevel, homeR2, REDUCED_MOTION_QUERY } from "@/lib/video";
+import {
+  coverLevel,
+  floorLevel,
+  HERO_HONORS_REDUCED_MOTION,
+  homeR2,
+  parseLevels,
+  REDUCED_MOTION_QUERY,
+} from "@/lib/video";
 import styles from "../page.module.css";
 
-type PlaybackState = "loading" | "playing" | "paused" | "blocked" | "error" | "reduced-motion";
+type PlaybackState =
+  | "loading"
+  | "playing"
+  | "paused"
+  | "blocked"
+  | "error"
+  | "reduced-motion";
+
+// Muted inline autoplay is still refused by iOS Low Power Mode, battery savers,
+// and in-app browsers until the first gesture. Those refusals are recoverable,
+// so a refused play() retries on a short ladder and again on every event that
+// grants playback, instead of leaving a frozen poster on the page.
+const RETRY_DELAYS = [200, 700, 1500, 3000, 6000, 12000, 24000];
+const ACTIVATION_EVENTS = ["pointerdown", "pointerup", "touchstart", "keydown", "wheel", "focus"] as const;
 
 export default function HomeR2Video() {
   const ref = useRef<HTMLVideoElement>(null);
-  const controls = useRef<{ play: () => void; pause: () => void } | null>(null);
   const [state, setState] = useState<PlaybackState>("loading");
 
   useEffect(() => {
@@ -20,19 +39,36 @@ export default function HomeR2Video() {
     let generation = 0;
     let disposed = false;
     let initializing = false;
-    let wanted = true;
-    let blocked = false;
+    let streaming = false;
+    let parsed = false;
     let failed = false;
-    let pendingPlay = false;
+    let playing = false;
+    let step = 0;
+    let retry: number | undefined;
 
+    // Autoplay decisions read properties, not markup: set them before the
+    // browser evaluates its media policy.
     video.muted = true;
     video.defaultMuted = true;
-    const allowed = () => !disposed && !motion.matches && !document.hidden && wanted && !failed;
+    video.autoplay = true;
+
+    const wanted = () =>
+      !disposed &&
+      !failed &&
+      !document.hidden &&
+      (HERO_HONORS_REDUCED_MOTION ? !motion.matches : true);
+
+    const clearRetry = () => {
+      if (retry !== undefined) window.clearTimeout(retry);
+      retry = undefined;
+    };
     const unload = () => {
       generation += 1;
-      initializing = pendingPlay = false;
+      initializing = playing = false;
+      clearRetry();
       hls?.destroy();
       hls = null;
+      streaming = parsed = false;
       video.pause();
       video.removeAttribute("src");
       video.load();
@@ -42,35 +78,89 @@ export default function HomeR2Video() {
       unload();
       if (!disposed) setState("error");
     };
-    const tryPlay = () => {
-      if (!allowed() || blocked || pendingPlay || !video.paused) return;
-      const attempt = generation;
-      pendingPlay = true;
-      void video.play().catch((error: unknown) => {
-        if (attempt !== generation || !allowed()) return;
-        if (error instanceof DOMException && error.name === "AbortError") return;
-        blocked = true;
-        hls?.stopLoad();
-        setState("blocked");
-      }).finally(() => {
-        if (attempt === generation) pendingPlay = false;
-      });
+    // Pin the rendition that covers the frame. hls.js picks the first fragment
+    // from abrEwmaDefaultEstimate, so an unpinned ladder opens on a soft rung
+    // and climbs. The bitrate floor, the cap, and the start level come from the
+    // measured frame and are applied before any fragment is requested.
+    const bounds = () => {
+      if (!hls || hls.levels.length === 0) return;
+      const cover = coverLevel(hls.levels, video.clientWidth, video.clientHeight, window.devicePixelRatio);
+      if (cover < 0) return;
+      hls.autoLevelCapping = cover;
+      hls.config.minAutoBitrate = hls.levels[floorLevel(hls.levels, cover)].bitrate;
+      hls.startLevel = cover;
     };
-    const resize = () => {
-      if (hls) hls.autoLevelCapping = coverLevel(hls.levels, video.clientWidth, video.clientHeight, window.devicePixelRatio);
+    const load = () => {
+      // Waiting for MANIFEST_PARSED keeps startLoad() out of hls.js's
+      // "forceStartLoad" path, where the first fragment would be requested
+      // before the pin above is applied.
+      if (!hls || !parsed || streaming || !wanted()) return;
+      hls.startLoad();
+      streaming = true;
+    };
+    const stop = () => {
+      if (!hls || !streaming) return;
+      hls.stopLoad();
+      streaming = false;
+    };
+    const retryLater = () => {
+      if (!wanted() || step >= RETRY_DELAYS.length) return;
+      clearRetry();
+      const delay = RETRY_DELAYS[step];
+      step += 1;
+      retry = window.setTimeout(() => {
+        retry = undefined;
+        void sync();
+      }, delay);
+    };
+    // The master-side ladder lives at homeR2.src; the native path reads it once
+    // and requests the single rendition that covers the frame, so the platform
+    // player has no ladder to switch through. Falls back to the master, which
+    // plays through the platform's own adaptive selection.
+    const nativeSource = async () => {
+      try {
+        const response = await fetch(homeR2.src);
+        if (response.ok) {
+          const levels = parseLevels(await response.text(), homeR2.src);
+          const cover = coverLevel(levels, video.clientWidth, video.clientHeight, window.devicePixelRatio);
+          if (cover >= 0) return levels[cover].url;
+        }
+      } catch {
+        /* fall through to the master ladder */
+      }
+      return homeR2.src;
+    };
+    const attemptPlay = () => {
+      if (!wanted() || playing || !video.paused) return;
+      const attempt = generation;
+      playing = true;
+      void video
+        .play()
+        .catch((error: unknown) => {
+          if (attempt !== generation || !wanted()) return;
+          if (error instanceof DOMException && error.name === "AbortError")
+            return;
+          // Refused before any user activation: release the bandwidth, keep
+          // the poster, and resume on the next gesture or retry.
+          stop();
+          setState("blocked");
+          retryLater();
+        })
+        .finally(() => {
+          if (attempt === generation) playing = false;
+        });
     };
     const sync = async () => {
       if (disposed) return;
-      if (motion.matches) {
-        blocked = false;
+      if (HERO_HONORS_REDUCED_MOTION && motion.matches) {
         unload();
         setState("reduced-motion");
         return;
       }
-      if (!allowed()) {
+      if (!wanted()) {
         video.pause();
-        hls?.stopLoad();
-        if (!document.hidden && !failed) setState("paused");
+        stop();
+        if (!failed) setState("paused");
         return;
       }
       if (!hls && !video.hasAttribute("src")) {
@@ -80,14 +170,33 @@ export default function HomeR2Video() {
         setState("loading");
         try {
           if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            video.src = homeR2.src;
+            // Native HLS (Safari, and Chrome on macOS) runs its own adaptive
+            // bitrate and opens on a low rendition, so it gets the single
+            // rendition that covers the frame, with no ladder to climb.
+            video.src = await nativeSource();
+            if (attempt !== generation || !wanted()) return;
           } else {
             const { default: Hls } = await import("hls.js");
-            if (attempt !== generation || !allowed()) return;
-            if (!Hls.isSupported()) { fail(); return; }
-            hls = new Hls({ maxBufferLength: 30, abrEwmaDefaultEstimate: 5_000_000 });
-            hls.on(Hls.Events.MANIFEST_PARSED, resize);
-            hls.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) fail(); });
+            if (attempt !== generation || !wanted()) return;
+            if (!Hls.isSupported()) {
+              fail();
+              return;
+            }
+            hls = new Hls({
+              // The first fragment waits for the measured frame.
+              autoStartLoad: false,
+              maxBufferLength: 30,
+              maxMaxBufferLength: 120,
+              abrEwmaDefaultEstimate: 8_000_000,
+            });
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              parsed = true;
+              bounds();
+              load();
+            });
+            hls.on(Hls.Events.ERROR, (_, data) => {
+              if (data.fatal) fail();
+            });
             hls.attachMedia(video);
             hls.loadSource(homeR2.src);
           }
@@ -98,51 +207,74 @@ export default function HomeR2Video() {
           if (attempt === generation) initializing = false;
         }
       }
-      if (!blocked) { hls?.startLoad(); tryPlay(); }
+      load();
+      attemptPlay();
     };
-    const playing = () => { if (allowed()) setState("playing"); else video.pause(); };
-    const paused = () => { if (!disposed && !motion.matches && !failed && !blocked) setState("paused"); };
-    const syncPlayback = () => { void sync(); };
-    controls.current = {
-      play: () => { wanted = true; blocked = failed = false; syncPlayback(); },
-      pause: () => { wanted = false; video.pause(); hls?.stopLoad(); setState("paused"); },
+    const activated = () => {
+      step = 0;
+      void sync();
     };
-    const observer = new ResizeObserver(resize);
+    const resized = () => {
+      bounds();
+    };
+    const started = () => {
+      step = 0;
+      if (wanted()) setState("playing");
+    };
+    const interrupted = () => {
+      if (!wanted()) return;
+      setState("paused");
+      retryLater();
+    };
+    const observer = new ResizeObserver(resized);
     observer.observe(video);
-    video.addEventListener("canplay", tryPlay);
-    video.addEventListener("playing", playing);
-    video.addEventListener("pause", paused);
+    video.addEventListener("canplay", attemptPlay);
+    video.addEventListener("loadeddata", attemptPlay);
+    video.addEventListener("playing", started);
+    video.addEventListener("pause", interrupted);
     video.addEventListener("error", fail);
-    motion.addEventListener("change", syncPlayback);
-    document.addEventListener("visibilitychange", syncPlayback);
-    syncPlayback();
+    document.addEventListener("visibilitychange", activated);
+    window.addEventListener("pageshow", activated);
+    motion.addEventListener("change", activated);
+    for (const name of ACTIVATION_EVENTS)
+      window.addEventListener(name, activated, { passive: true });
+    void sync();
     return () => {
       disposed = true;
-      controls.current = null;
       observer.disconnect();
-      video.removeEventListener("canplay", tryPlay);
-      video.removeEventListener("playing", playing);
-      video.removeEventListener("pause", paused);
+      video.removeEventListener("canplay", attemptPlay);
+      video.removeEventListener("loadeddata", attemptPlay);
+      video.removeEventListener("playing", started);
+      video.removeEventListener("pause", interrupted);
       video.removeEventListener("error", fail);
-      motion.removeEventListener("change", syncPlayback);
-      document.removeEventListener("visibilitychange", syncPlayback);
+      document.removeEventListener("visibilitychange", activated);
+      window.removeEventListener("pageshow", activated);
+      motion.removeEventListener("change", activated);
+      for (const name of ACTIVATION_EVENTS)
+        window.removeEventListener(name, activated);
       unload();
     };
   }, []);
 
   return (
-    <>
-      <div className={styles.frame} style={{ backgroundImage: `url("${homeR2.poster}")` }} aria-hidden="true">
-        <video ref={ref} className={styles.video} data-state={state}
-          poster={homeR2.poster} muted loop playsInline preload="auto"
-          disablePictureInPicture tabIndex={-1} />
-      </div>
-      {state !== "reduced-motion" && (
-        <button type="button" className={styles.videoControl} disabled={state === "loading"}
-          onClick={() => state === "playing" ? controls.current?.pause() : controls.current?.play()}>
-          {state === "playing" ? "Pause video" : "Play video"}
-        </button>
-      )}
-    </>
+    <div
+      className={styles.frame}
+      style={{ backgroundImage: `url("${homeR2.poster}")` }}
+      aria-hidden="true"
+    >
+      <video
+        ref={ref}
+        className={styles.video}
+        data-state={state}
+        poster={homeR2.poster}
+        muted
+        autoPlay
+        loop
+        playsInline
+        preload="auto"
+        disablePictureInPicture
+        tabIndex={-1}
+      />
+    </div>
   );
 }

@@ -22,8 +22,12 @@ export default function HomePage() {
       <SiteNav active="home" inline />
 
       <main className={styles.frameWrap}>
-        <h1 className={styles.visuallyHidden}>Albert Olivé Corbella, Senior AI Product Engineer in Cardedeu</h1>
-        <p className={styles.visuallyHidden}>Building AI-native products from idea to production.</p>
+        <h1 className={styles.visuallyHidden}>
+          Albert Olivé Corbella, Senior AI Product Engineer in Cardedeu
+        </h1>
+        <p className={styles.visuallyHidden}>
+          Building AI-native products from idea to production.
+        </p>
         <HomeR2Video />
 
         <Link
@@ -38,13 +42,14 @@ export default function HomePage() {
 
       <div className={styles.bottomBar}>
         <div className={styles.barGroup}>
-          <span className={styles.barItem}>{site.name.split(" ").slice(0, 2).join(" ")}</span>
+          <span className={styles.barItem}>Albert Olivé Corbella</span>
           <span className={styles.barItem}>{site.role}</span>
         </div>
         <div className={`${styles.barGroup} ${styles.barRight}`}>
           <span className={styles.barItem}>{site.location}</span>
           <span className={styles.barTime}>
-            <Clock /><span className={styles.barItem}>{year}</span>
+            <Clock />
+            <span className={styles.barItem}>{year}</span>
           </span>
         </div>
       </div>

@@ -32,6 +32,14 @@ try {
   const repeated = JSON.parse(run(process.execPath, args));
   assert.equal(repeated.reused, true);
   assert.equal(repeated.release, result.release);
+  const trimmed = JSON.parse(run(process.execPath, [...args, "--start", "1", "--end", "4"]));
+  assert.notEqual(trimmed.release, result.release, "a different trim is a different release");
+  assert.deepEqual(trimmed.trim, { start: 1, end: 4 });
+  const trimmedPlaylist = await readFile(join(trimmed.directory, "1080/index.m3u8"), "utf8");
+  const trimmedSeconds = [...trimmedPlaylist.matchAll(/#EXTINF:([\d.]+)/g)].reduce((total, [, seconds]) => total + Number(seconds), 0);
+  assert.ok(Math.abs(trimmedSeconds - 3) < 0.1, `trimmed duration must be three seconds, got ${trimmedSeconds}`);
+  assert.throws(() => run(process.execPath, [...args, "--start", "4", "--end", "4"]), /--end must be after --start/);
+  assert.throws(() => run(process.execPath, [...args, "--start", "99"]), /--start is at or past the end of the input/);
   await writeFile(join(result.directory, "poster.jpg"), "damaged");
   assert.throws(() => run(process.execPath, args), /Existing release is damaged/, "never overwrite a damaged or previously published release");
   console.log("PASS real FFmpeg encoding, separated bitrates, segment timing/decoding, versioned names, idempotent reuse, corruption detection");

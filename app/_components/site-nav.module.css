@@ -135,6 +135,16 @@
 
 .brandText {
   display: block;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .brandText {
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .links {

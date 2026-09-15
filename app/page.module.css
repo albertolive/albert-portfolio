@@ -56,26 +56,6 @@
   pointer-events: none;
 }
 
-.videoControl {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  min-height: 44px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: #000;
-  color: #fff;
-  z-index: 2;
-}
-
-.videoControl:disabled {
-  visibility: hidden;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .videoControl { display: none; }
-}
-
 /* Badge links to selected projects. */
 .badge {
   position: absolute;

@@ -8,6 +8,8 @@ const hlsChunks = new Set(readdirSync(chunks).filter(name => name.endsWith(".js"
 assert.ok(hlsChunks.size > 0, "run npm run build before the browser checks");
 const isPlayer = url => hlsChunks.has(new URL(url).pathname.split("/").at(-1));
 const base = process.env.PORTFOLIO_BASE_URL ?? "http://localhost:3100";
+const isSegment = url => /\/hls\/[a-f0-9]{64}\/\d+\/seg\d+\.ts$/.test(new URL(url).pathname);
+const rung = url => new URL(url).pathname.split("/").at(-2);
 let browser;
 before(async () => { browser = await (process.env.PORTFOLIO_BROWSER === "webkit" ? webkit : chromium).launch(); });
 after(async () => { await browser?.close(); });
@@ -30,47 +32,74 @@ test("hero covers every viewport, including no-JS mobile", async () => {
   }
 });
 
-test("reduced motion loads neither HLS media nor the HLS player", async () => {
+test("the hero autoplays for visitors who asked for reduced motion", async () => {
   const page = await browser.newPage({ reducedMotion: "reduce" });
   const media = [];
   page.on("request", request => { if (request.url().includes("workers.dev") || isPlayer(request.url())) media.push(request.url()); });
   try {
     await page.goto(base);
-    await page.waitForTimeout(750);
-    assert.deepEqual(media, []);
-    assert.equal(await page.locator("video").evaluate(v => v.paused && !v.getAttribute("src")), true);
-    assert.equal(await page.getByRole("button", { name: /video/i }).count(), 0);
+    await page.waitForFunction(() => document.querySelector("video").currentTime > 0.4);
+    assert.ok(media.length > 0, "reduced motion still loads and plays the hero stream");
+    assert.equal(await page.getByRole("button", { name: /video/i }).count(), 0, "the hero has no pause control");
     await page.emulateMedia({ reducedMotion: "no-preference" });
-    await page.waitForFunction(() => document.querySelector("video").currentTime > 0);
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.waitForFunction(() => document.querySelector("video").paused && !document.querySelector("video").getAttribute("src"));
+    await page.waitForTimeout(250);
+    assert.equal(await page.locator("video").evaluate(v => v.paused), false, "changing the preference does not unload the stream");
+    assert.notEqual(await page.locator("video").evaluate(v => v.dataset.state), "reduced-motion");
   } finally { await page.close(); }
 });
 
-test("real HLS plays without CSS blur, pause sticks, and navigation cleans up", async () => {
+test("native HLS plays only the rendition that covers the frame", async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const segments = [];
+  const players = [];
+  page.on("request", request => {
+    if (isSegment(request.url())) segments.push(rung(request.url()));
+    if (isPlayer(request.url())) players.push(request.url());
+  });
+  try {
+    await page.goto(base);
+    if (!await page.locator("video").evaluate(v => v.canPlayType("application/vnd.apple.mpegurl"))) return;
+    assert.deepEqual(players, [], "native HLS must not download hls.js");
+    assert.equal(await page.locator("video").evaluate(v => getComputedStyle(v).filter), "none", "no CSS blur is involved");
+    // The platform player can only stay on one rung when it is given one rung.
+    await page.waitForFunction(() => document.querySelector("video").currentTime > 8);
+    assert.deepEqual([...new Set(segments)], ["1080"], `only the covering rendition is fetched, got ${[...new Set(segments)].join(", ")}`);
+    assert.equal(await page.locator("video").evaluate(v => v.videoWidth), 1920, "native playback decodes the pinned rendition");
+    assert.match(await page.locator("video").evaluate(v => v.currentSrc), /\/1080\/index\.m3u8$/, "the element points at the variant playlist, not the master");
+  } finally { await page.close(); }
+});
+
+test("hls.js pins the covering rendition on the first fragment", async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  const segments = [];
+  let master = false;
+  page.on("request", request => {
+    if (isSegment(request.url())) segments.push(rung(request.url()));
+    if (request.url().endsWith("/master.m3u8")) master = true;
+  });
+  try {
+    await page.addInitScript(() => {
+      const canPlayType = HTMLMediaElement.prototype.canPlayType;
+      HTMLMediaElement.prototype.canPlayType = function (type) {
+        return type.includes("mpegurl") ? "" : canPlayType.call(this, type);
+      };
+    });
+    await page.goto(base);
+    await page.waitForFunction(() => document.querySelector("video").currentTime > 5);
+    assert.equal(master, true, "the JS player drives from the master ladder");
+    assert.deepEqual([...new Set(segments)], ["1080"], `only the covering rendition is fetched, got ${[...new Set(segments)].join(", ")}`);
+    assert.equal(await page.locator("video").evaluate(v => v.videoWidth), 1920, "the first decoded frame is the pinned rendition");
+  } finally { await page.close(); }
+});
+
+test("navigation unloads the hero and returning starts it again", async () => {
   const page = await browser.newPage();
   const errors = [];
-  const players = [];
-  page.on("request", request => { if (isPlayer(request.url())) players.push(request.url()); });
   page.on("pageerror", error => errors.push(error.message));
   try {
     await page.goto(base);
-    await page.waitForFunction(() => document.querySelector("video").currentTime > 1);
-    if (await page.locator("video").evaluate(v => v.canPlayType("application/vnd.apple.mpegurl"))) assert.deepEqual(players, [], "native HLS must not download hls.js");
-    assert.equal(await page.locator("video").evaluate(v => getComputedStyle(v).filter), "none");
-    await page.getByRole("button", { name: "Pause video", exact: true }).click();
-    const time = await page.locator("video").evaluate(v => v.currentTime);
-    await page.waitForTimeout(1500);
-    assert.equal(await page.locator("video").evaluate(v => v.currentTime), time);
-    await page.getByRole("button", { name: "Play video", exact: true }).click();
-    await page.waitForFunction(time => document.querySelector("video").currentTime > time + 0.2, time);
-    await page.getByRole("button", { name: "Pause video", exact: true }).click();
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.waitForFunction(() => !document.querySelector("video").getAttribute("src"));
-    await page.emulateMedia({ reducedMotion: "no-preference" });
-    assert.equal(await page.locator("video").evaluate(v => v.paused), true);
-    await page.getByRole("button", { name: "Play video", exact: true }).click();
-    await page.waitForFunction(() => document.querySelector("video").currentTime > 0.2);
+    await page.waitForFunction(() => document.querySelector("video").currentTime > 0.5);
     await page.evaluate(() => { window.previousVideo = document.querySelector("video"); });
     await page.locator('nav a[href="/about"]').click();
     await page.waitForURL(`${base}/about`);
@@ -102,34 +131,35 @@ test("backgrounding pauses playback and the loop restarts at the end", async () 
   } finally { await page.close(); }
 });
 
-test("blocked autoplay has a working explicit play button", async () => {
-  const page = await browser.newPage();
+test("autoplay refused before a gesture resumes on the first tap", async () => {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
     await page.addInitScript(() => {
       const play = HTMLMediaElement.prototype.play;
-      let allowed = false;
-      document.addEventListener("click", event => {
-        if (event.isTrusted && event.target instanceof Element && event.target.closest("button")) allowed = true;
-      }, true);
+      let granted = false;
+      document.addEventListener("pointerdown", event => { if (event.isTrusted) granted = true; }, true);
       HTMLMediaElement.prototype.play = function () {
-        if (!allowed) return Promise.reject(new DOMException("Blocked", "NotAllowedError"));
+        if (!granted) return Promise.reject(new DOMException("Blocked", "NotAllowedError"));
         return play.call(this);
       };
     });
     await page.goto(base);
-    await page.getByRole("button", { name: "Play video", exact: true }).click();
+    await page.waitForFunction(() => document.querySelector("video").dataset.state === "blocked");
+    assert.equal(await page.locator("video").evaluate(v => getComputedStyle(v).opacity), "0", "the poster stays up while playback is refused");
+    await page.mouse.click(640, 400);
     await page.waitForFunction(() => document.querySelector("video").currentTime > 0);
   } finally { await page.close(); }
 });
 
-test("a late HLS import cannot restart video after reduced motion", async () => {
+test("a late player import cannot attach after the page is left", async () => {
   const page = await browser.newPage();
   let release;
   const gate = new Promise(resolve => { release = resolve; });
   let requested;
   const started = new Promise(resolve => { requested = resolve; });
+  const media = [];
   try {
-    // Exercise the asynchronous JS-player path even in browsers with native HLS.
+    // Exercise the asynchronous player path in browsers with native HLS too.
     await page.addInitScript(() => {
       const canPlayType = HTMLMediaElement.prototype.canPlayType;
       HTMLMediaElement.prototype.canPlayType = function (type) {
@@ -142,10 +172,12 @@ test("a late HLS import cannot restart video after reduced motion", async () => 
     });
     await page.goto(base, { waitUntil: "domcontentloaded" });
     await started;
-    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.locator('nav a[href="/about"]').click();
+    await page.waitForURL(`${base}/about`);
+    page.on("request", request => { if (request.url().includes("workers.dev")) media.push(request.url()); });
     release();
     await page.waitForTimeout(500);
-    assert.equal(await page.locator("video").evaluate(v => v.paused && !v.getAttribute("src")), true);
+    assert.deepEqual(media, [], "a player created after navigation must not load the stream");
   } finally { release(); await page.close(); }
 });
 

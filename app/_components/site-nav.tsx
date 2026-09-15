@@ -3,7 +3,7 @@ import Link from "next/link";
 import ReactiveAvatar from "./reactive-avatar";
 import styles from "./site-nav.module.css";
 
-export type NavRoute = "home" | "projects" | "about" | "experience";
+export type NavRoute = "home" | "projects" | "about" | "experience" | "friends";
 
 export const navRoutes: { id: NavRoute; href: string; label: string }[] = [
   { id: "home", href: "/", label: "home" },
@@ -27,9 +27,23 @@ const icons: Record<NavRoute, ReactNode> = {
   // Hand-drawn set from toryn.bio (reference/measurements/toryn.md)
   home: (
     <svg {...iconProps}>
-      <path d="M3.6 11.4 L12.2 3.7 L20.6 11.2 Z" fill="currentColor" fillOpacity="0.1" stroke="none" />
-      <path d="M5.8 10.6 L5.5 19.6 L18.6 19.8 L18.3 10.4 Z" fill="currentColor" fillOpacity="0.1" stroke="none" />
-      <path d="M10.4 19.6 L10.5 14.8 C 10.5 14.3, 13.4 14.2, 13.5 14.9 L13.6 19.7 Z" fill="#fff" stroke="none" />
+      <path
+        d="M3.6 11.4 L12.2 3.7 L20.6 11.2 Z"
+        fill="currentColor"
+        fillOpacity="0.1"
+        stroke="none"
+      />
+      <path
+        d="M5.8 10.6 L5.5 19.6 L18.6 19.8 L18.3 10.4 Z"
+        fill="currentColor"
+        fillOpacity="0.1"
+        stroke="none"
+      />
+      <path
+        d="M10.4 19.6 L10.5 14.8 C 10.5 14.3, 13.4 14.2, 13.5 14.9 L13.6 19.7 Z"
+        fill="#fff"
+        stroke="none"
+      />
       <path d="M3.6 11.4 L12.2 3.7" />
       <path d="M12.2 3.7 L20.6 11.2" />
       <path d="M5.8 10.6 L5.5 19.6" />
@@ -53,8 +67,23 @@ const icons: Record<NavRoute, ReactNode> = {
   ),
   about: (
     <svg {...iconProps}>
-      <ellipse cx="10.5" cy="12.3" rx="7.8" ry="7.5" fill="#fff" stroke="none" />
-      <ellipse cx="10.5" cy="12.3" rx="7.8" ry="7.5" fill="currentColor" fillOpacity="0.1" stroke="none" />
+      <ellipse
+        cx="10.5"
+        cy="12.3"
+        rx="7.8"
+        ry="7.5"
+        fill="#fff"
+        stroke="none"
+      />
+      <ellipse
+        cx="10.5"
+        cy="12.3"
+        rx="7.8"
+        ry="7.5"
+        fill="currentColor"
+        fillOpacity="0.1"
+        stroke="none"
+      />
       <ellipse cx="10.5" cy="12.3" rx="7.8" ry="7.5" />
       <circle cx="7.9" cy="10.3" r="0.55" fill="currentColor" stroke="none" />
       <circle cx="12.9" cy="10.1" r="0.55" fill="currentColor" stroke="none" />
@@ -63,10 +92,19 @@ const icons: Record<NavRoute, ReactNode> = {
   ),
   experience: (
     <svg {...iconProps}>
-      <path d="M5.2 8.2 L18.8 8.2 L18.1 19.2 L5.9 19.2 Z" fill="currentColor" fillOpacity="0.1" />
+      <path
+        d="M5.2 8.2 L18.8 8.2 L18.1 19.2 L5.9 19.2 Z"
+        fill="currentColor"
+        fillOpacity="0.1"
+      />
       <path d="M9 8.1 L9.4 5.2 L14.7 5.2 L15 8.1" />
       <path d="M5.3 12.1 C8.3 13.7, 15.7 13.7, 18.7 12.1" />
       <path d="M10.1 13.2 L10.1 15.1 L13.9 15.1 L13.9 13.2" />
+    </svg>
+  ),
+  friends: (
+    <svg {...iconProps}>
+      <circle cx="12" cy="12" r="5" fill="currentColor" />
     </svg>
   ),
 };
@@ -98,7 +136,7 @@ export default function SiteNav({
           <div className={styles.brand}>
             <Link href="/">
               <ReactiveAvatar />
-              <span className={styles.brandText}>albert olivé</span>
+              <span className={styles.brandText}>Albert Olivé Corbella</span>
             </Link>
           </div>
           <ul className={styles.links}>
