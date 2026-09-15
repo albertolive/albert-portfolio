@@ -10,7 +10,7 @@ export const aboutVideo = {
 // For replacements, use the versioned URL emitted by prepare-home-video.mjs.
 // The poster stays local so the frame paints before any stream request.
 export const homeR2 = {
-  src: "https://hero-video-proxy.albertolivecorbella.workers.dev/hls/ae741609baa4356b787a2a75b2d5f8ef987a64d0392bb976966c8e0eb2231da5/master.m3u8",
+  src: "https://hero-video-proxy.albertolivecorbella.workers.dev/hls/1de9315dc6c59c8de9af8db574e01db0999ea8656ecf340231c773c03b92c36c/master.m3u8",
   poster: "/images/hero-poster.jpg",
 } as const;
 
