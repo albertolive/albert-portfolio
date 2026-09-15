@@ -121,7 +121,10 @@ playlist that covers the frame, so it cannot switch renditions. The `hls.js`
 path starts on the rendition that covers the frame and pins the ladder there,
 so quality cannot change mid-loop. It never unloads for reduced motion, pauses
 while the document is hidden, retries a refused `play()` on the next gesture or
-tab focus, and keeps the poster only after a fatal HLS error. `HERO_FLOOR_STEPS`
+tab focus, audits frames after a background app switch (iOS suspends the
+pipeline while the element still reports itself as playing, so the stream is
+rebuilt once when the picture stops moving), keeps the poster only after a
+fatal HLS error, and treats an aborted load as recoverable. `HERO_FLOOR_STEPS`
 lets `hls.js` step one rung down instead of pinning; the native path always
 plays the single variant it was given.
 

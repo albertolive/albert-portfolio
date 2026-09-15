@@ -131,6 +131,68 @@ test("backgrounding pauses playback and the loop restarts at the end", async () 
   } finally { await page.close(); }
 });
 
+test("a suspended pipeline is rebuilt when the document is visible again", async () => {
+  // iOS suspends the media pipeline when an app is backgrounded: the element
+  // keeps reporting `paused === false` while no frame advances, with readyState
+  // and networkState stuck at 1 and no error event, and only a fresh load()
+  // restarts it (Apple developer forums, "HtmlVideoElement Suspended on iOS
+  // Safari"). Freezing currentTime stands in for that state, and the fake frame
+  // clock only moves again once the element has been loaded, which is the cure
+  // the player is expected to reach for.
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  try {
+    await page.goto(base);
+    await page.waitForFunction(() => document.querySelector("video").currentTime > 1.5);
+    const held = await page.evaluate(() => {
+      const video = document.querySelector("video");
+      const held = video.currentTime;
+      let cured = 0;
+      video.addEventListener("loadstart", () => { cured = performance.now(); });
+      Object.defineProperty(video, "currentTime", { configurable: true, get: () => held + (cured ? (performance.now() - cured) / 1000 : 0) });
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
+      document.dispatchEvent(new Event("visibilitychange"));
+      return held;
+    });
+    await page.waitForFunction(() => document.querySelector("video").paused);
+    await page.evaluate(() => {
+      delete document.hidden;
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await page.waitForFunction(held => document.querySelector("video").currentTime > held + 1.5, held);
+    assert.equal(await page.locator("video").evaluate(v => v.dataset.state), "playing");
+    assert.equal(await page.locator("video").evaluate(v => getComputedStyle(v).opacity), "1");
+  } finally { await page.close(); }
+});
+
+test("an aborted load does not latch the poster", async () => {
+  // WebKit destroys the media player when a page enters the back/forward cache,
+  // and the cancelled load reaches the page as a non-fatal MEDIA_ERR_ABORTED on
+  // restore (WebKit bug 319665). The stream itself is fine, so the hero rebuilds
+  // instead of keeping the poster for the rest of the session.
+  const page = await browser.newPage();
+  const media = [];
+  page.on("request", request => { if (request.url().includes("workers.dev")) media.push(request.url()); });
+  try {
+    await page.goto(base);
+    await page.waitForFunction(() => document.querySelector("video").currentTime > 1.5);
+    const before = media.length;
+    await page.evaluate(() => {
+      const video = document.querySelector("video");
+      Object.defineProperty(video, "error", { configurable: true, get: () => ({ code: MediaError.MEDIA_ERR_ABORTED, message: "The fetching process was aborted." }) });
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
+      document.dispatchEvent(new Event("visibilitychange"));
+      video.dispatchEvent(new Event("error"));
+    });
+    await page.evaluate(() => {
+      delete document.hidden;
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await page.waitForFunction(() => document.querySelector("video").currentTime > 0.2);
+    assert.ok(media.length > before, "an aborted load reloads the stream instead of keeping the poster");
+    assert.notEqual(await page.locator("video").evaluate(v => v.dataset.state), "error");
+  } finally { await page.close(); }
+});
+
 test("autoplay refused before a gesture resumes on the first tap", async () => {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {

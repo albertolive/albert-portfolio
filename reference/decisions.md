@@ -151,6 +151,22 @@ Montseny interaction. The shared nav is a server component.
   `play()` (Low Power Mode, battery savers, in-app browsers) is retried on a
   delay ladder and again on the first gesture, `visibilitychange`, or
   `pageshow`; only a fatal HLS error keeps the poster.
+- Coming back from a backgrounded app is not the same as coming back from a
+  hidden tab (2026-09-15, from Albert's report on his phone). iOS suspends the
+  media pipeline and leaves the element reporting `paused === false` on a
+  frozen frame, with readyState and networkState stuck at 1 and no error
+  event, so a resume that trusted the flag did nothing and the picture stayed
+  frozen until the page was reloaded. Restoring a page from the WebKit
+  back/forward cache also destroys the media player and surfaces the cancelled
+  fetch as `MEDIA_ERR_ABORTED` (WebKit bug 319665), which the old fatal-error
+  policy turned into a poster for the rest of the session. The player now asks
+  for playback on every activation without trusting `paused`, audits frames by
+  sampling `currentTime`, rebuilds the stream once when the picture stops
+  moving (a fresh `load()` is Apple's documented cure for the suspended case),
+  and treats `MEDIA_ERR_ABORTED` as recoverable while every other media error
+  code stays final. `check:home` covers both: "a suspended pipeline is rebuilt
+  when the document is visible again" and "an aborted load does not latch the
+  poster".
 - Safari's native HLS player still chooses its own rendition. The accurate
   bitrate separation in the master playlist is the only lever there.
 

@@ -77,8 +77,14 @@ the first fragment. `HERO_FLOOR_STEPS` in `lib/video.ts` is the policy switch th
 of degradation instead. Reduced motion, a hidden document, and a refused
 `play()` all still keep the stream loaded; playback resumes on
 `visibilitychange`, `pageshow`, or the first gesture, and only a fatal HLS
-error falls back to the poster. `HERO_HONORS_REDUCED_MOTION` in `lib/video.ts`
-restores the poster for reduced-motion visitors.
+error falls back to the poster. An app switch is not a hidden tab: iOS
+suspends the media pipeline and leaves the element claiming to be playing,
+with no error event, and a back/forward cache restore can reach the page as
+`MEDIA_ERR_ABORTED` (WebKit bug 319665). After any activation the player
+therefore proves playback by sampling `currentTime` and rebuilds the stream
+once when no frame arrives, rather than trusting the element's flags.
+`HERO_HONORS_REDUCED_MOTION` in `lib/video.ts` restores the poster for
+reduced-motion visitors.
 Video replacement and versioned caching are documented in `README.md`.
 
 The document keeps the visual treatment unchanged while providing one

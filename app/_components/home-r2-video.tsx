@@ -27,6 +27,23 @@ type PlaybackState =
 const RETRY_DELAYS = [200, 700, 1500, 3000, 6000, 12000, 24000];
 const ACTIVATION_EVENTS = ["pointerdown", "pointerup", "touchstart", "keydown", "wheel", "focus"] as const;
 
+// Coming back from a backgrounded app is not the same as coming back from a
+// hidden tab. iOS suspends the media pipeline instead of pausing it: the
+// element keeps reporting `paused === false` while no frame advances, with
+// readyState and networkState stuck at 1 and no error event, and only a fresh
+// load() restarts it (Apple developer forums, "HtmlVideoElement Suspended on
+// iOS Safari"). WebKit also destroys the media player when a page enters the
+// back/forward cache, which reaches the page as a non-fatal MEDIA_ERR_ABORTED
+// after the restore (WebKit bug 319665). Neither state is visible in the
+// element's flags, so playback is audited by sampling currentTime after every
+// activation, and a picture that stops moving is rebuilt once. The hero is a
+// loop, so a rebuild costs a frame, not the session.
+const FRAME_AUDIT_MS = 1200;
+const FRAME_AUDIT_STALLS = 3;
+// A connection that is still fetching deserves longer than a pipeline that has
+// stopped asking for anything at all.
+const FRAME_AUDIT_PATIENT_STALLS = 6;
+
 export default function HomeR2Video() {
   const ref = useRef<HTMLVideoElement>(null);
   const [state, setState] = useState<PlaybackState>("loading");
@@ -45,6 +62,10 @@ export default function HomeR2Video() {
     let playing = false;
     let step = 0;
     let retry: number | undefined;
+    let auditTimer: number | undefined;
+    let marker = -1;
+    let stalls = 0;
+    let rebuilt = false;
 
     // Autoplay decisions read properties, not markup: set them before the
     // browser evaluates its media policy.
@@ -73,7 +94,16 @@ export default function HomeR2Video() {
       video.removeAttribute("src");
       video.load();
     };
+    // A cancelled fetch is not a broken stream: entering the back/forward cache
+    // destroys the media player and aborts the load inside it (WebKit bug
+    // 319665), so the element reports MEDIA_ERR_ABORTED on restore. Rebuild
+    // once for that; a second abort, or any other code, is final.
+    const aborted = () => video.error?.code === MediaError.MEDIA_ERR_ABORTED && !rebuilt;
     const fail = () => {
+      if (aborted()) {
+        rebuild();
+        return;
+      }
       failed = true;
       unload();
       if (!disposed) setState("error");
@@ -113,6 +143,55 @@ export default function HomeR2Video() {
         void sync();
       }, delay);
     };
+    // load() is the documented cure for a suspended pipeline and the only way
+    // back from an aborted load. One rebuild per stall: another would be a
+    // request storm, and frames have to move before one is earned again.
+    const rebuild = () => {
+      if (disposed || failed || rebuilt) return;
+      rebuilt = true;
+      unload();
+      void sync(true);
+    };
+    const clearAudit = () => {
+      if (auditTimer !== undefined) window.clearTimeout(auditTimer);
+      auditTimer = undefined;
+    };
+    const watch = () => {
+      clearAudit();
+      marker = video.currentTime;
+      auditTimer = window.setTimeout(audit, FRAME_AUDIT_MS);
+    };
+    // `paused` is a flag, not evidence: a suspended pipeline holds one frame
+    // forever while the element still claims to be playing, so playback is
+    // proved with frames. Sampling currentTime costs one timer, and the audit
+    // stops itself whenever the document is hidden or the stream is dead.
+    const audit = () => {
+      auditTimer = undefined;
+      if (disposed || !wanted()) return;
+      if (video.seeking || video.paused) {
+        stalls = 0;
+        watch();
+        return;
+      }
+      if (video.currentTime !== marker) {
+        marker = video.currentTime;
+        stalls = 0;
+        rebuilt = false;
+        watch();
+        return;
+      }
+      stalls += 1;
+      // A slow connection reports LOADING with nothing buffered ahead; a
+      // suspended pipeline reports IDLE and will never deliver another frame.
+      const patient =
+        video.networkState === HTMLMediaElement.NETWORK_LOADING &&
+        video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA;
+      if (stalls >= (patient ? FRAME_AUDIT_PATIENT_STALLS : FRAME_AUDIT_STALLS)) {
+        rebuild();
+        return;
+      }
+      watch();
+    };
     // The master-side ladder lives at homeR2.src; the native path reads it once
     // and requests the single rendition that covers the frame, so the platform
     // player has no ladder to switch through. Falls back to the master, which
@@ -130,15 +209,20 @@ export default function HomeR2Video() {
       }
       return homeR2.src;
     };
-    const attemptPlay = () => {
-      if (!wanted() || playing || !video.paused) return;
+    // Only a resume asks for playback unconditionally, because an element that
+    // claims to be playing can still be suspended; play() is a no-op in the
+    // spec when the element is genuinely playing.
+    const attemptPlay = (resumed = false) => {
+      if (!wanted() || playing || (!resumed && !video.paused)) return;
       const attempt = generation;
       playing = true;
       void video
         .play()
         .catch((error: unknown) => {
           if (attempt !== generation || !wanted()) return;
-          if (error instanceof DOMException && error.name === "AbortError")
+          // A superseded play() and a play() with nothing to play are not
+          // refusals, and neither one is worth a retry ladder.
+          if (error instanceof DOMException && error.name !== "NotAllowedError")
             return;
           // Refused before any user activation: release the bandwidth, keep
           // the poster, and resume on the next gesture or retry.
@@ -150,7 +234,7 @@ export default function HomeR2Video() {
           if (attempt === generation) playing = false;
         });
     };
-    const sync = async () => {
+    const sync = async (resumed = false) => {
       if (disposed) return;
       if (HERO_HONORS_REDUCED_MOTION && motion.matches) {
         unload();
@@ -208,11 +292,30 @@ export default function HomeR2Video() {
         }
       }
       load();
-      attemptPlay();
+      attemptPlay(resumed);
     };
+    // Registered on the media events that make playback possible.
+    const ready = () => attemptPlay();
+    // Every event that can grant playback (a gesture, a page shown again, a
+    // motion preference change). After a background app switch the element can
+    // claim to be playing from a frozen frame, so this asks for playback and
+    // then audits frames instead of believing the flag.
     const activated = () => {
       step = 0;
+      void sync(true);
+      watch();
+    };
+    // A hidden document is not just an interrupted one: the platform suspends
+    // the pipeline underneath the pause, so the next activation has to earn its
+    // own recovery.
+    const hidden = () => {
+      rebuilt = false;
+      clearAudit();
       void sync();
+    };
+    const visibility = () => {
+      if (document.hidden) hidden();
+      else activated();
     };
     const resized = () => {
       bounds();
@@ -228,26 +331,28 @@ export default function HomeR2Video() {
     };
     const observer = new ResizeObserver(resized);
     observer.observe(video);
-    video.addEventListener("canplay", attemptPlay);
-    video.addEventListener("loadeddata", attemptPlay);
+    video.addEventListener("canplay", ready);
+    video.addEventListener("loadeddata", ready);
     video.addEventListener("playing", started);
     video.addEventListener("pause", interrupted);
     video.addEventListener("error", fail);
-    document.addEventListener("visibilitychange", activated);
+    document.addEventListener("visibilitychange", visibility);
     window.addEventListener("pageshow", activated);
     motion.addEventListener("change", activated);
     for (const name of ACTIVATION_EVENTS)
       window.addEventListener(name, activated, { passive: true });
     void sync();
+    watch();
     return () => {
       disposed = true;
+      clearAudit();
       observer.disconnect();
-      video.removeEventListener("canplay", attemptPlay);
-      video.removeEventListener("loadeddata", attemptPlay);
+      video.removeEventListener("canplay", ready);
+      video.removeEventListener("loadeddata", ready);
       video.removeEventListener("playing", started);
       video.removeEventListener("pause", interrupted);
       video.removeEventListener("error", fail);
-      document.removeEventListener("visibilitychange", activated);
+      document.removeEventListener("visibilitychange", visibility);
       window.removeEventListener("pageshow", activated);
       motion.removeEventListener("change", activated);
       for (const name of ACTIVATION_EVENTS)
