@@ -5,40 +5,40 @@
 .page {
   min-height: 100dvh;
   position: relative;
-  background: var(--ink);
+  background: #000;
 }
 
-/* Video is full-bleed fixed 100vw/100vh object-fit cover behind the prose
-   (decisions.md D5: ped.ro-style fixed muted loop at opacity .75). No grade,
-   no mask, no CSS blur. A dark scrim keeps the background near-black like
-   the deployed version so the white prose always has contrast. */
+/* White backing keeps multiply text visible even on black video frames. */
 .videoWrap {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: #111;
+  background: #fff;
+}
+
+/* Fade the poster and video as one layer so fallback text has the same
+   brightness floor. Grain stays here, behind the opaque black slab. */
+.videoMedia {
+  position: absolute;
+  inset: 0;
+  opacity: 0.75;
   background-size: cover;
   background-position: center;
 }
 
-/* Dark scrim over the video — this is the near-black background. */
-.videoWrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.62);
-  pointer-events: none;
-}
-
+/* Same opaque multiply slab as a41aac6. Only the light glyphs carry video;
+   nav and counter stay outside the blend, as on ped.ro. */
 .contentLayer {
   position: relative;
   z-index: 1;
   min-height: 100dvh;
+  background: #000;
   color: #fff;
   text-align: center;
   display: flex;
   flex-direction: column;
+  mix-blend-mode: multiply;
 }
 
 .grain {
@@ -59,11 +59,11 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 666ms ease;
 }
 
 .videoBg[data-ready="true"] {
-  opacity: 0.75;
+  opacity: 1;
+  transition: opacity 666ms ease;
 }
 
 .visuallyHidden {
@@ -127,7 +127,6 @@
   filter: blur(0.25px);
   animation: show 0.6s both;
   animation-delay: calc(0.16s * var(--delay, 0));
-  will-change: opacity;
 }
 
 @keyframes show {
@@ -242,10 +241,12 @@
   .homeText {
     font-size: 35px;
     line-height: 42px;
-  }}
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .videoBg {
+  .videoBg,
+  .videoBg[data-ready="true"] {
     transition: none;
     animation: none;
   }

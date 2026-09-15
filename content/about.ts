@@ -17,8 +17,8 @@ function countReveals(segments: AboutSegment[]): number {
 
 // The closed prose stands on its own; each reveal adds a non-repeating
 // continuation immediately after its label and may contain more reveals.
-export const about: { segments: AboutSegment[] } = {
-  segments: [
+export const about: { paragraphs: AboutSegment[][] } = {
+  paragraphs: [[
     {
       kind: "text",
       text: "I'm Albert Olivé Corbella, an ",
@@ -40,6 +40,7 @@ export const about: { segments: AboutSegment[] } = {
         },
       ],
     },
+  ], [
     { kind: "text", text: " I'm based in " },
     {
       kind: "reveal",
@@ -56,13 +57,14 @@ export const about: { segments: AboutSegment[] } = {
             {
               kind: "reveal",
               id: "chickens",
-              label: "exactly three chickens",
+              label: "three chickens",
               children: [{ kind: "text", text: " for fresh eggs." }],
             },
           ],
         },
       ],
     },
+  ], [
     { kind: "text", text: " My background includes " },
     {
       kind: "reveal",
@@ -81,6 +83,7 @@ export const about: { segments: AboutSegment[] } = {
         },
       ],
     },
+  ], [
     { kind: "text", text: " Now I build " },
     {
       kind: "reveal",
@@ -111,9 +114,9 @@ export const about: { segments: AboutSegment[] } = {
     { kind: "text", text: ", or reach me by " },
     { kind: "link", text: "email", href: `mailto:${site.email}` },
     { kind: "text", text: "." },
-  ],
+  ]],
 };
 
-export const revealCount = countReveals(about.segments);
+export const revealCount = about.paragraphs.reduce((total, paragraph) => total + countReveals(paragraph), 0);
 
 export type About = typeof about;

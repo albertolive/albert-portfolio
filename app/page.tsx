@@ -24,17 +24,12 @@ export default function HomePage() {
       <main className={styles.frameWrap}>
         <h1 className={styles.visuallyHidden}>Albert Olivé Corbella, Senior AI Product Engineer in Cardedeu</h1>
         <p className={styles.visuallyHidden}>Building AI-native products from idea to production.</p>
-        <p className={styles.visuallyHidden}>
-          Full-bleed looping video of the Montseny landscape behind the page content.
-        </p>
-        <div className={styles.frame}>
-          <HomeR2Video />
-        </div>
+        <HomeR2Video />
 
         <Link
           href="/projects"
           className={styles.badge}
-          aria-label={`About ${site.name} — ${site.status}`}
+          aria-label={`${site.status} — View my projects`}
         >
           <span className={styles.badgeDot} aria-hidden="true" />
           <span className={styles.badgeText}>{site.status}</span>

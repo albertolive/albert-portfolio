@@ -9,12 +9,10 @@ import styles from "./page.module.css";
 // Deviation (D5): closed content is inert (not tabbable).
 export default function Reveal({
   reveal,
-  parentId,
 }: {
   reveal: Extract<AboutSegment, { kind: "reveal" }>;
-  parentId: string | null;
 }) {
-  const { open, toggle } = useReveal(reveal.id, parentId);
+  const { open, toggle } = useReveal(reveal.id);
   const contentId = `about-reveal-${reveal.id}`;
 
   return (
@@ -41,7 +39,7 @@ export default function Reveal({
               {seg.text}
             </a>
           ) : (
-            <Reveal key={seg.id} reveal={seg} parentId={reveal.id} />
+            <Reveal key={seg.id} reveal={seg} />
           ),
         )}
       </span>

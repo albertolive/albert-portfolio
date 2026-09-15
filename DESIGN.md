@@ -54,16 +54,22 @@ on every page. `app/_components/site-nav.tsx`:
   1.05em.
 - `withBlur`: white blur strip (rgba .9, blur 12, h 100px) behind nav on
   scrollable pages — used on /projects.
-- Tone: `light` (white links) on home + about, dark (toryn ink) on
-  /projects.
+- Tone: `light` (white links) on /about; dark on home, /projects, and /experience.
 
 ## Page: `/` (home — jrands identity)
 
-Layout: body `100dvh`, `overflow: clip` on desktop only (mobile
-scrolls). Frame inset 20px desktop / 12px mobile. Video cover, muted loop
-`playsinline`, poster fallback. Badge top 26px centered (mobile: 14px).
-Bottom bar 64px below frame. Shared toryn navbar on top (light tone) —
-**the jrands glass dock is removed** (2026-09-08 review).
+Layout: a `100dvh` flex column on desktop; mobile can scroll. The frame has
+32px horizontal margins on desktop and 20px on mobile. The native video fills
+the frame with `object-fit: cover`, muted looping playback, `playsInline`, and
+a matching poster fallback. The badge sits 72px from the frame top, or 56px
+on mobile. The dark-on-white navbar is in normal flow above the video.
+The bottom bar sits below the frame. A 44px-minimum play/pause button sits
+inside the frame at bottom-right and is absent with reduced motion.
+
+HLS uses R2 through the video Worker, with native HLS preferred over a dynamic
+`hls.js` import. Quality capping accounts for both cover dimensions and device
+pixels. A hidden document pauses playback; reduced motion unloads the source.
+Video replacement and versioned caching are documented in `README.md`.
 
 The document keeps the visual treatment unchanged while providing one
 visually hidden `h1` and a short description for search engines and assistive
@@ -125,8 +131,11 @@ technology.
 
 ## Page: `/about` (pedro identity)
 
-- bg `#111`, white text, SVG grain behind the text fixed inset-0 opacity .2
-  (`feTurbulence baseFrequency .8 numOctaves 4`, saturate 0).
+- An opaque `#000` content layer with `mix-blend-mode: multiply` keeps the
+  background black while white glyphs show the video. The poster, video, and
+  SVG grain share a 75%-opacity media layer over white. Grain stays behind
+  the black layer, so it cannot turn the background gray. Nav and counter
+  remain outside the blend.
 - Prose: 35px/42px desktop, 28px/36px <768, letter-spacing -.01em, weight 500.
 - Reveal pills: inline-block, border 1px currentColor, radius 9999px,
   padding `0 .4em`, uppercase, `font-size: .8em`. Hover: accent bg + near-black
@@ -136,9 +145,12 @@ technology.
   tree with 4 root hints and 10 total reveals). GitHub, LinkedIn, and email
   remain ordinary prose links.
 - Reveal content: closed = inline, blurred 6px, opacity .8, and `inert`;
-  open = inline, unfiltered, full opacity. Closing a parent closes nested
-  children. Readable prose has no blur or delayed opacity animation.
-- Counter: fixed top-right 16px, serif italic 16px, `R 0 / 10`, aria-live
+  open = inline, full opacity, blur animates to zero over .6s. Closing a parent
+  preserves nested children, which remain inert through their ancestor until
+  reopened. Prose has a resting .25px blur and four staggered paragraph
+  entrances. Paragraph boundaries live in `content/about.ts`, not array slices
+  in the page component. Reduced motion disables the animations.
+- Counter: fixed top-right 16px, serif italic 13px, `R 0 / 10`, aria-live
   polite, hidden on `(hover: none)`.
 - Navbar: shared toryn `SiteNav` (light tone).
 - Video: decorative VP9 WebM (`public/video/about.webm`) with a WebP poster

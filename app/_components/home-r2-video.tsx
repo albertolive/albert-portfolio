@@ -1,86 +1,148 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import Hls from "hls.js";
-import { homeR2 } from "@/lib/video";
+import { useEffect, useRef, useState } from "react";
+import type Hls from "hls.js";
+import { coverLevel, homeR2, REDUCED_MOTION_QUERY } from "@/lib/video";
 import styles from "../page.module.css";
 
-// R2 clone of jrands behavior (see HomeStream): muted autoplay loop,
-// adaptive HLS (~4s segments), poster first frame, cover crop via
-// the same .video class. Source is R2 (free, no viewer cap) instead
-// of Cloudflare Stream.
+type PlaybackState = "loading" | "playing" | "paused" | "blocked" | "error" | "reduced-motion";
+
 export default function HomeR2Video() {
   const ref = useRef<HTMLVideoElement>(null);
+  const controls = useRef<{ play: () => void; pause: () => void } | null>(null);
+  const [state, setState] = useState<PlaybackState>("loading");
 
   useEffect(() => {
-    const v = ref.current;
-    if (!v || homeR2.src.includes("video.example.com")) return;
-    // Mobile autoplay policies read the muted *property*; the JSX attribute
-    // alone is unreliable there. Set both before touching src.
-    v.muted = true;
-    v.defaultMuted = true;
-    const tryPlay = () => {
-      if (!v.paused || v.error) return;
-      v.play().catch(() => {});
+    const video = ref.current;
+    if (!video) return;
+    const motion = window.matchMedia(REDUCED_MOTION_QUERY);
+    let hls: Hls | null = null;
+    let generation = 0;
+    let disposed = false;
+    let initializing = false;
+    let wanted = true;
+    let blocked = false;
+    let failed = false;
+    let pendingPlay = false;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    const allowed = () => !disposed && !motion.matches && !document.hidden && wanted && !failed;
+    const unload = () => {
+      generation += 1;
+      initializing = pendingPlay = false;
+      hls?.destroy();
+      hls = null;
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
     };
-    // Autoplay can still be denied (low-power mode, data-saver): the first
-    // tap anywhere then starts the hero. The video sits behind page content,
-    // so listen on window, not on the element. One-shot, harmless elsewhere.
-    window.addEventListener("pointerdown", tryPlay, { once: true });
-    // iOS stalls at HAVE_METADATA under preload="metadata", so `canplay`
-    // may never fire and nothing retries the first play(). Belt and
-    // suspenders: preload=auto (see JSX) + retry on every readiness event +
-    // a capped 1s interval. Tap fallback above covers Low Power Mode, which
-    // no code can override.
-    v.addEventListener("loadeddata", tryPlay);
-    v.addEventListener("canplay", tryPlay);
-    let h: Hls | null = null;
-    if (v.canPlayType("application/vnd.apple.mpegurl")) {
-      v.src = homeR2.src;
-    } else if (Hls.isSupported()) {
-      // Start near the top rendition (hero is fullscreen; default 500kbps
-      // estimate would open on 480p and look pixelated), still adapts down.
-      // (No minAutoBitrate: verified no-op — lowest rung's maxBitrate already
-      // exceeds any floor below ~1.7M, and the ladder is flat anyway.)
-      // capLevelToPlayerSize keeps small screens from wasting bandwidth.
-      h = new Hls({
-        maxBufferLength: 30,
-        abrEwmaDefaultEstimate: 5_000_000,
-        capLevelToPlayerSize: true,
+    const fail = () => {
+      failed = true;
+      unload();
+      if (!disposed) setState("error");
+    };
+    const tryPlay = () => {
+      if (!allowed() || blocked || pendingPlay || !video.paused) return;
+      const attempt = generation;
+      pendingPlay = true;
+      void video.play().catch((error: unknown) => {
+        if (attempt !== generation || !allowed()) return;
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        blocked = true;
+        hls?.stopLoad();
+        setState("blocked");
+      }).finally(() => {
+        if (attempt === generation) pendingPlay = false;
       });
-      h.loadSource(homeR2.src);
-      h.attachMedia(v);
-    }
-    tryPlay();
-    let tries = 0;
-    const iv = window.setInterval(() => {
-      if (!v.paused || v.error || ++tries > 6) {
-        window.clearInterval(iv);
+    };
+    const resize = () => {
+      if (hls) hls.autoLevelCapping = coverLevel(hls.levels, video.clientWidth, video.clientHeight, window.devicePixelRatio);
+    };
+    const sync = async () => {
+      if (disposed) return;
+      if (motion.matches) {
+        blocked = false;
+        unload();
+        setState("reduced-motion");
         return;
       }
-      tryPlay();
-    }, 1000);
+      if (!allowed()) {
+        video.pause();
+        hls?.stopLoad();
+        if (!document.hidden && !failed) setState("paused");
+        return;
+      }
+      if (!hls && !video.hasAttribute("src")) {
+        if (initializing) return;
+        initializing = true;
+        const attempt = generation;
+        setState("loading");
+        try {
+          if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = homeR2.src;
+          } else {
+            const { default: Hls } = await import("hls.js");
+            if (attempt !== generation || !allowed()) return;
+            if (!Hls.isSupported()) { fail(); return; }
+            hls = new Hls({ maxBufferLength: 30, abrEwmaDefaultEstimate: 5_000_000 });
+            hls.on(Hls.Events.MANIFEST_PARSED, resize);
+            hls.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) fail(); });
+            hls.attachMedia(video);
+            hls.loadSource(homeR2.src);
+          }
+        } catch {
+          if (attempt === generation && !disposed) fail();
+          return;
+        } finally {
+          if (attempt === generation) initializing = false;
+        }
+      }
+      if (!blocked) { hls?.startLoad(); tryPlay(); }
+    };
+    const playing = () => { if (allowed()) setState("playing"); else video.pause(); };
+    const paused = () => { if (!disposed && !motion.matches && !failed && !blocked) setState("paused"); };
+    const syncPlayback = () => { void sync(); };
+    controls.current = {
+      play: () => { wanted = true; blocked = failed = false; syncPlayback(); },
+      pause: () => { wanted = false; video.pause(); hls?.stopLoad(); setState("paused"); },
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(video);
+    video.addEventListener("canplay", tryPlay);
+    video.addEventListener("playing", playing);
+    video.addEventListener("pause", paused);
+    video.addEventListener("error", fail);
+    motion.addEventListener("change", syncPlayback);
+    document.addEventListener("visibilitychange", syncPlayback);
+    syncPlayback();
     return () => {
-      window.removeEventListener("pointerdown", tryPlay);
-      v.removeEventListener("loadeddata", tryPlay);
-      v.removeEventListener("canplay", tryPlay);
-      window.clearInterval(iv);
-      h?.destroy();
+      disposed = true;
+      controls.current = null;
+      observer.disconnect();
+      video.removeEventListener("canplay", tryPlay);
+      video.removeEventListener("playing", playing);
+      video.removeEventListener("pause", paused);
+      video.removeEventListener("error", fail);
+      motion.removeEventListener("change", syncPlayback);
+      document.removeEventListener("visibilitychange", syncPlayback);
+      unload();
     };
   }, []);
 
   return (
-    <video
-      ref={ref}
-      className={styles.video}
-      poster={homeR2.poster}
-      muted
-      autoPlay
-      loop
-      playsInline
-      preload="auto"
-      aria-hidden="true"
-      tabIndex={-1}
-    />
+    <>
+      <div className={styles.frame} style={{ backgroundImage: `url("${homeR2.poster}")` }} aria-hidden="true">
+        <video ref={ref} className={styles.video} data-state={state}
+          poster={homeR2.poster} muted loop playsInline preload="auto"
+          disablePictureInPicture tabIndex={-1} />
+      </div>
+      {state !== "reduced-motion" && (
+        <button type="button" className={styles.videoControl} disabled={state === "loading"}
+          onClick={() => state === "playing" ? controls.current?.pause() : controls.current?.play()}>
+          {state === "playing" ? "Pause video" : "Play video"}
+        </button>
+      )}
+    </>
   );
 }

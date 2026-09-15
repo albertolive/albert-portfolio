@@ -1,15 +1,11 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-// Page-owned reveal state (plan Phase 3.3-3.5). Replaces the module-global
-// reveal event bus: one owner per page, so navigation resets state and the
-// open counter (openIds.size) cannot desynchronize on unmounts or nesting.
-// Parent-close behavior: closing a reveal does not close its descendants; children stay open.
+// Reveals stay mounted inside their page owner, even when an ancestor closes.
 type RevealOwner = {
   isOpen: (id: string) => boolean;
   toggle: (id: string) => void;
-  register: (id: string, parentId: string | null) => () => void;
   openCount: number;
 };
 
@@ -17,27 +13,12 @@ const RevealOwnerContext = createContext<RevealOwner | null>(null);
 
 export function RevealProvider({ children }: { children: React.ReactNode }) {
   const [openIds, setOpenIds] = useState<ReadonlySet<string>>(() => new Set());
-  const parentOf = useRef(new Map<string, string | null>());
-
-  const register = useCallback((id: string, parentId: string | null) => {
-    parentOf.current.set(id, parentId);
-    return () => {
-      parentOf.current.delete(id);
-      setOpenIds((prev) => {
-        if (!prev.has(id)) return prev;
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    };
-  }, []);
 
   const toggle = useCallback((id: string) => {
     setOpenIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
-
       } else {
         next.add(id);
       }
@@ -51,8 +32,8 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ isOpen, toggle, register, openCount: openIds.size }),
-    [isOpen, toggle, register, openIds.size],
+    () => ({ isOpen, toggle, openCount: openIds.size }),
+    [isOpen, toggle, openIds.size],
   );
 
   return <RevealOwnerContext.Provider value={value}>{children}</RevealOwnerContext.Provider>;
@@ -64,9 +45,8 @@ function useOwner(): RevealOwner {
   return ctx;
 }
 
-export function useReveal(id: string, parentId: string | null) {
-  const { isOpen, toggle, register } = useOwner();
-  useEffect(() => register(id, parentId), [id, parentId, register]);
+export function useReveal(id: string) {
+  const { isOpen, toggle } = useOwner();
   return { open: isOpen(id), toggle: () => toggle(id) };
 }
 

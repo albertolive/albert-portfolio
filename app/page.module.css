@@ -24,7 +24,7 @@
 .frameWrap {
   position: relative;
   flex: 1;
-  container-type: size;
+  min-height: 240px;
   margin: 0 32px;
   border-radius: 8px;
   overflow: hidden;
@@ -41,22 +41,42 @@
 
 .video {
   border: 0;
+  object-fit: cover;
+  opacity: 0;
 }
 
-/* Top scrim removed (2026-09-08): the nav now lives above the video in
-   normal flow, so no darkening band is needed. */
+.video[data-state="playing"],
+.video[data-state="paused"] {
+  opacity: 1;
+}
 
 .frame {
-  inset: auto;
-  top: 50%;
-  left: 50%;
-  width: max(100cqw, calc(100cqh * 16 / 9));
-  height: max(100cqh, calc(100cqw * 9 / 16));
-  transform: translate(-50%, -50%);
+  background-size: cover;
+  background-position: center;
   pointer-events: none;
 }
 
-/* Badge — jrands #clay-badge; we make it a link to /about (D3) */
+.videoControl {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  z-index: 2;
+}
+
+.videoControl:disabled {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .videoControl { display: none; }
+}
+
+/* Badge links to selected projects. */
 .badge {
   position: absolute;
   top: 72px;

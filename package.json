@@ -7,6 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npm run check:projects && npm run check:video && npm run check:video-proxy",
+    "check:video": "node --experimental-strip-types scripts/check-video.mjs",
+    "check:video-proxy": "node --test scripts/check-video-proxy.mjs",
+    "check:video:encoding": "node scripts/check-video-encoding.mjs",
+    "check:home": "node --test scripts/check-home.mjs",
+    "check:about": "node scripts/check-about.mjs && node scripts/check-about-compositing.mjs",
     "check:projects": "node --experimental-strip-types scripts/check-projects.mjs",
     "check:projects:browser": "node scripts/check-projects-browser.mjs",
     "check:projects:preview": "node scripts/check-projects-preview.mjs"

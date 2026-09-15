@@ -20,6 +20,9 @@
 # production
 /build
 
+# local Cloudflare Worker build/state
+/workers/video-proxy/.wrangler/
+
 # misc
 .DS_Store
 *.pem
