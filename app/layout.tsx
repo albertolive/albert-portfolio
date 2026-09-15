@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Inter_Tight, Newsreader } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 import { site } from "@/content/site";
 
 const inter = Inter({
@@ -65,7 +66,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
       className={`${inter.variable} ${spaceGrotesk.variable} ${interTight.variable} ${newsreader.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <Script strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-1KVJJGEM8Y" />
+        <Script id="ga-setup" strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-1KVJJGEM8Y');`}</Script>
+        {children}
+      </body>
     </html>
   );
 }

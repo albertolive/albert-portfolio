@@ -1,5 +1,5 @@
 export const site = {
-  url: "https://albert-portfolio-six.vercel.app",
+  url: "https://albertolive.corbella.cat",
   name: "Albert Olivé Corbella",
   // C1 resolved (2026-09-11): CV headline, ex-IOTA framing.
   title: "Senior AI Product Engineer · Building AI-native products from idea to production",
