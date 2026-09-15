@@ -8,6 +8,10 @@
   background: var(--ink);
 }
 
+/* Video is full-bleed fixed 100vw/100vh object-fit cover behind the prose
+   (decisions.md D5: ped.ro-style fixed muted loop at opacity .75). No grade,
+   no mask, no CSS blur. A dark scrim keeps the background near-black like
+   the deployed version so the white prose always has contrast. */
 .videoWrap {
   position: fixed;
   inset: 0;
@@ -18,8 +22,7 @@
   background-position: center;
 }
 
-/* Dark scrim over the video (ped.ro #111 bg, no blend mode). The old
-   mix-blend-mode: multiply washed the white prose into the bright frames. */
+/* Dark scrim over the video — this is the near-black background. */
 .videoWrap::after {
   content: "";
   position: absolute;
@@ -34,12 +37,14 @@
   min-height: 100dvh;
   color: #fff;
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .grain {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 9999;
   opacity: 0.2;
   pointer-events: none;
   filter: contrast(60%) brightness(100%);
@@ -50,15 +55,15 @@
 .videoBg {
   position: absolute;
   inset: 0;
-  width: 100vw;
-  height: 100dvh;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   opacity: 0;
   transition: opacity 666ms ease;
 }
 
 .videoBg[data-ready="true"] {
-  opacity: 1;
+  opacity: 0.75;
 }
 
 .visuallyHidden {
@@ -86,6 +91,9 @@
   line-height: var(--leading-small);
   color: #eee;
   user-select: none;
+  filter: blur(0.25px);
+  animation: show 0.6s both;
+  animation-delay: calc(0.16s * 5);
 }
 
 @media (hover: none) {
@@ -94,28 +102,54 @@
   }
 }
 
-/* Shell — container-4 = 1136px */
+/* Shell — container-4 = 1136px. margin auto centers vertically inside the
+   flex column when content is short (ped.ro rt-Container align-items
+   center); resolves to 0 on overflow so long prose never clips. */
 .main {
   max-width: 1136px;
-  margin: 0 auto;
+  margin: auto;
   padding: 0 16px;
-  padding-top: 160px;
+  padding-top: 20vh;
   position: relative;
   z-index: 2;
 }
 
-/* Prose — 28px/36px mobile, 35px/42px desktop, wght 500 */
-.text {
+/* Prose — one paragraph per sentence, ped.ro staggered entrance
+   (show .6s both, delay calc(.16s * --delay)), resting blur(.25px).
+   28px/36px mobile, 35px/42px ≥768px, wght 500. */
+.homeText {
   font-family: var(--font-tight);
   font-weight: 500;
   font-size: 28px;
   line-height: 36px;
   letter-spacing: -0.01em;
+  margin: 0;
+  filter: blur(0.25px);
+  animation: show 0.6s both;
+  animation-delay: calc(0.16s * var(--delay, 0));
+  will-change: opacity;
+}
+
+@keyframes show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reveal {
+  from {
+    filter: blur(0.1em);
+  }
+  to {
+    filter: blur(0);
+  }
 }
 
 .mail {
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-tight);
   color: #fff;
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -123,11 +157,13 @@
 
 .mail:hover {
   color: var(--accent-about);
+  text-decoration-color: var(--accent-about);
 }
 
 /* Reveal pills — inline, border currentColor, radius 9999px */
 .revealTrigger {
   display: inline-block;
+  position: relative;
   border: 1px solid currentColor;
   border-radius: 9999px;
   padding: 0 0.4em;
@@ -136,9 +172,10 @@
   font-weight: 500;
   font-size: 0.8em;
   text-transform: uppercase;
-  letter-spacing: normal;
   color: #fff;
-  cursor: help;
+  background: none;
+  outline: none;
+  cursor: default;
   vertical-align: baseline;
   transition:
     background-color 150ms ease,
@@ -150,6 +187,12 @@
   background: var(--accent-about);
   border-color: var(--accent-about);
   color: #1a0a06;
+}
+
+@media (hover: hover) {
+  .revealTrigger:hover {
+    cursor: help;
+  }
 }
 
 .revealTrigger.open {
@@ -177,6 +220,7 @@
 .revealContent:not(.open) {
   filter: blur(6px);
   opacity: 0.8;
+  overflow: hidden;
   user-select: none;
   color: #fff;
   pointer-events: none;
@@ -186,23 +230,29 @@
   display: inline;
   filter: none;
   opacity: 1;
+  animation: reveal 0.6s both;
 }
 
 @media (min-width: 768px) {
   .main {
     padding: 0 32px;
-    padding-top: 180px;
+    padding-top: 20vh;
   }
 
-  .text {
+  .homeText {
     font-size: 35px;
     line-height: 42px;
-  }
-}
+  }}
 
 @media (prefers-reduced-motion: reduce) {
   .videoBg {
     transition: none;
+    animation: none;
   }
 
+  .homeText,
+  .revealContent.open,
+  .counter {
+    animation: none;
+  }
 }

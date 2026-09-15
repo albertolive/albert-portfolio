@@ -20,18 +20,23 @@ export default function HomeR2Video() {
     v.muted = true;
     v.defaultMuted = true;
     const tryPlay = () => {
+      if (!v.paused || v.error) return;
       v.play().catch(() => {});
     };
     // Autoplay can still be denied (low-power mode, data-saver): the first
     // tap anywhere then starts the hero. The video sits behind page content,
     // so listen on window, not on the element. One-shot, harmless elsewhere.
     window.addEventListener("pointerdown", tryPlay, { once: true });
+    // iOS stalls at HAVE_METADATA under preload="metadata", so `canplay`
+    // may never fire and nothing retries the first play(). Belt and
+    // suspenders: preload=auto (see JSX) + retry on every readiness event +
+    // a capped 1s interval. Tap fallback above covers Low Power Mode, which
+    // no code can override.
+    v.addEventListener("loadeddata", tryPlay);
+    v.addEventListener("canplay", tryPlay);
     let h: Hls | null = null;
     if (v.canPlayType("application/vnd.apple.mpegurl")) {
       v.src = homeR2.src;
-      // src is attached after mount; the autoPlay attribute may not fire on
-      // it, so play explicitly once data can flow (native path, i.e. iOS).
-      v.addEventListener("canplay", tryPlay, { once: true });
     } else if (Hls.isSupported()) {
       // Start near the top rendition (hero is fullscreen; default 500kbps
       // estimate would open on 480p and look pixelated), still adapts down.
@@ -47,8 +52,19 @@ export default function HomeR2Video() {
       h.attachMedia(v);
     }
     tryPlay();
+    let tries = 0;
+    const iv = window.setInterval(() => {
+      if (!v.paused || v.error || ++tries > 6) {
+        window.clearInterval(iv);
+        return;
+      }
+      tryPlay();
+    }, 1000);
     return () => {
       window.removeEventListener("pointerdown", tryPlay);
+      v.removeEventListener("loadeddata", tryPlay);
+      v.removeEventListener("canplay", tryPlay);
+      window.clearInterval(iv);
       h?.destroy();
     };
   }, []);
@@ -62,7 +78,7 @@ export default function HomeR2Video() {
       autoPlay
       loop
       playsInline
-      preload="metadata"
+      preload="auto"
       aria-hidden="true"
       tabIndex={-1}
     />

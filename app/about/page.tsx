@@ -1,4 +1,5 @@
-import { about, revealCount } from "@/content/about";
+import type { CSSProperties } from "react";
+import { about, revealCount, type AboutSegment } from "@/content/about";
 import { site } from "@/content/site";
 import { pageMetadata } from "@/lib/metadata";
 import SiteNav from "../_components/site-nav";
@@ -20,6 +21,15 @@ export const metadata = pageMetadata({
 
 // /about — ped.ro identity (reference/measurements/pedro.md).
 // Deviations (D5): closed content inert, counter aria-live, reduced-motion.
+// One paragraph per sentence so each staggers in ped.ro-style
+// (animation-delay calc(.16s * --delay)). Boundaries follow the copy in
+// content/about.ts: sentences start at top-level text segments 0, 2, 4, 6.
+const paras: AboutSegment[][] = [
+  about.segments.slice(0, 2),
+  about.segments.slice(2, 4),
+  about.segments.slice(4, 6),
+  about.segments.slice(6),
+];
 export default function AboutPage() {
   return (
     <div className={styles.page}>
@@ -33,21 +43,25 @@ export default function AboutPage() {
             <h1 className={styles.visuallyHidden}>
               About {site.name}, {site.role} in Cardedeu
             </h1>
-            <div className={styles.text}>
-              {about.segments.map((seg, i) =>
-                seg.kind === "text" ? (
-                  <span key={i}>
-                    {seg.text}
-                  </span>
-                ) : seg.kind === "link" ? (
-                  <a key={i} className={styles.mail} href={seg.href}>
-                    {seg.text}
-                  </a>
-                ) : (
-                  <Reveal key={seg.id} reveal={seg} parentId={null} />
-                ),
-              )}
-            </div>
+            {paras.map((segs, p) => (
+              <p
+                key={p}
+                className={styles.homeText}
+                style={{ "--delay": p } as CSSProperties}
+              >
+                {segs.map((seg, i) =>
+                  seg.kind === "text" ? (
+                    <span key={i}>{seg.text}</span>
+                  ) : seg.kind === "link" ? (
+                    <a key={i} className={styles.mail} href={seg.href}>
+                      {seg.text}
+                    </a>
+                  ) : (
+                    <Reveal key={seg.id} reveal={seg} parentId={null} />
+                  ),
+                )}
+              </p>
+            ))}
           </main>
         </div>
       </RevealProvider>

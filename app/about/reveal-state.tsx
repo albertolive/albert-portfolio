@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 // Page-owned reveal state (plan Phase 3.3-3.5). Replaces the module-global
 // reveal event bus: one owner per page, so navigation resets state and the
 // open counter (openIds.size) cannot desynchronize on unmounts or nesting.
-// Parent-close behavior: closing a reveal closes all of its descendants.
+// Parent-close behavior: closing a reveal does not close its descendants; children stay open.
 type RevealOwner = {
   isOpen: (id: string) => boolean;
   toggle: (id: string) => void;
@@ -37,18 +37,7 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
-        // Cascade: any open reveal whose parent chain is no longer fully
-        // open closes too (one pass per depth level; depth here is <= 3).
-        let changed = true;
-        while (changed) {
-          changed = false;
-          for (const [child, parent] of parentOf.current) {
-            if (parent !== null && next.has(child) && !next.has(parent)) {
-              next.delete(child);
-              changed = true;
-            }
-          }
-        }
+
       } else {
         next.add(id);
       }
